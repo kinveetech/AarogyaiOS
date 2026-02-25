@@ -13,6 +13,8 @@ final class AppCoordinator {
     }
 
     var state: AppState = .loading
+    var pendingDeepLink: DeepLink?
+    var selectedTab: AppTab = .reports
 
     private let container: DependencyContainer
 
@@ -66,5 +68,40 @@ final class AppCoordinator {
 
     func handleRegistrationComplete() async {
         await checkAuthState()
+    }
+
+    func handleDeepLink(_ deepLink: DeepLink) {
+        switch state {
+        case .authenticated:
+            applyDeepLink(deepLink)
+        default:
+            pendingDeepLink = deepLink
+        }
+    }
+
+    func handleURL(_ url: URL) {
+        guard let deepLink = DeepLinkHandler.parse(url: url) else { return }
+        handleDeepLink(deepLink)
+    }
+
+    func consumePendingDeepLink() {
+        guard let deepLink = pendingDeepLink else { return }
+        pendingDeepLink = nil
+        applyDeepLink(deepLink)
+    }
+
+    private func applyDeepLink(_ deepLink: DeepLink) {
+        switch deepLink {
+        case .reports:
+            selectedTab = .reports
+        case .reportDetail:
+            selectedTab = .reports
+        case .accessGrants:
+            selectedTab = .access
+        case .emergency:
+            selectedTab = .emergency
+        case .settings:
+            selectedTab = .settings
+        }
     }
 }
