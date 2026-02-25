@@ -9,4 +9,5 @@ extension Logger {
     static let ui = Logger(subsystem: subsystem, category: "ui")
     static let upload = Logger(subsystem: subsystem, category: "upload")
     static let cache = Logger(subsystem: subsystem, category: "cache")
+    static let navigation = Logger(subsystem: subsystem, category: "navigation")
 }

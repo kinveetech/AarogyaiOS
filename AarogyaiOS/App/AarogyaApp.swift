@@ -4,7 +4,6 @@ import SwiftData
 @main
 struct AarogyaApp: App {
     @State private var container = DependencyContainer()
-    @State private var coordinator: AppCoordinator?
 
     var body: some Scene {
         WindowGroup {
@@ -33,12 +32,15 @@ struct RootView: View {
             case .unauthenticated:
                 LoginView(viewModel: LoginViewModel(
                     loginUseCase: container.loginUseCase,
-                    onLoginSuccess: { await coordinator.handleLogin() }
+                    onLoginSuccess: {
+                        await coordinator.handleLogin()
+                        coordinator.consumePendingDeepLink()
+                    }
                 ))
             case .pendingApproval:
                 PendingApprovalView(
                     checkStatusUseCase: container.checkRegistrationStatusUseCase,
-                    onStatusChange: { status in
+                    onStatusChange: { _ in
                         Task { await coordinator.handleRegistrationComplete() }
                     },
                     onSignOut: {
@@ -55,13 +57,18 @@ struct RootView: View {
             case .authenticated:
                 TabCoordinator(
                     container: container,
+                    selectedTab: $coordinator.selectedTab,
                     onSignOut: { await coordinator.handleLogout() }
                 )
             }
         }
         .environment(coordinator)
+        .onOpenURL { url in
+            coordinator.handleURL(url)
+        }
         .task {
             await coordinator.checkAuthState()
+            coordinator.consumePendingDeepLink()
         }
     }
 }

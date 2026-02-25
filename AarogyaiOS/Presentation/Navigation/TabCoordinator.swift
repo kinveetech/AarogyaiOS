@@ -9,9 +9,8 @@ enum AppTab: String, CaseIterable, Sendable {
 
 struct TabCoordinator: View {
     let container: DependencyContainer
+    @Binding var selectedTab: AppTab
     let onSignOut: () async -> Void
-
-    @State private var selectedTab: AppTab = .reports
 
     var body: some View {
         TabView(selection: $selectedTab) {
