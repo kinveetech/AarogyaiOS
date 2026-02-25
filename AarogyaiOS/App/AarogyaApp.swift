@@ -53,7 +53,10 @@ struct RootView: View {
                     }
                 )
             case .authenticated:
-                TabCoordinator()
+                TabCoordinator(
+                    container: container,
+                    onSignOut: { await coordinator.handleLogout() }
+                )
             }
         }
         .environment(coordinator)
