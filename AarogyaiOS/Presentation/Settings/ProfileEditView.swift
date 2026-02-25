@@ -27,8 +27,10 @@ struct ProfileEditView: View {
             Section("Personal Information") {
                 TextField("First Name", text: $viewModel.firstName)
                     .textContentType(.givenName)
+                    .accessibilityIdentifier(AccessibilityID.Profile.firstNameField)
                 TextField("Last Name", text: $viewModel.lastName)
                     .textContentType(.familyName)
+                    .accessibilityIdentifier(AccessibilityID.Profile.lastNameField)
                 TextField("Email", text: $viewModel.email)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
@@ -76,6 +78,7 @@ struct ProfileEditView: View {
                 Button("Save Changes") {
                     Task { await viewModel.saveProfile() }
                 }
+                .accessibilityIdentifier(AccessibilityID.Profile.saveButton)
                 .disabled(!viewModel.hasChanges || viewModel.isSaving)
                 .frame(maxWidth: .infinity, alignment: .center)
             }
