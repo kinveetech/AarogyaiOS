@@ -205,10 +205,10 @@ enum APIEndpoint {
 /// 5. If refresh fails: Clear Keychain → force logout
 ```
 
-### Token Storage (Keychain)
+### Token Storage (Native Keychain Services)
 
 ```swift
-/// Stored items in Keychain:
+/// Stored items in Keychain (native API — no third-party wrapper):
 /// - "com.kinvee.aarogya.accessToken"  → JWT access token
 /// - "com.kinvee.aarogya.refreshToken" → Refresh token
 /// - "com.kinvee.aarogya.idToken"      → JWT ID token (contains user claims)
@@ -217,6 +217,9 @@ enum APIEndpoint {
 /// Keychain attributes:
 /// - kSecAttrAccessible: afterFirstUnlock (available after device unlock)
 /// - kSecAttrService: "com.kinvee.aarogya"
+///
+/// The TokenStore wraps raw Keychain Services calls into a clean Swift API.
+/// No KeychainAccess library needed — iOS 26's native API is sufficient.
 ```
 
 ### PKCE Generator

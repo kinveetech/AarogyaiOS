@@ -4,20 +4,22 @@
 
 AarogyaiOS is the native iOS client for the Aarogya healthcare platform. It provides patients, doctors, and lab technicians secure access to medical records, report management, access grants, emergency contacts, and DPDPA-compliant consent management.
 
-**Stack**: Swift 6, SwiftUI, iOS 17+, MVVM + Clean Architecture
+**Stack**: Swift 6.2, SwiftUI, iOS 26+, Liquid Glass, MVVM + Clean Architecture
 
 ---
 
 ## Architecture
 
 - **Pattern**: MVVM + Clean Architecture (Domain / Data / Presentation layers)
-- **UI**: SwiftUI only — no UIKit
-- **State**: `@Observable` macro (iOS 17+), no Combine
+- **UI**: SwiftUI with Liquid Glass — no UIKit
+- **Design**: Liquid Glass for navigation layer (tab bar, toolbars, floating controls); Serene Bloom gradient as content background
+- **State**: `@Observable` macro, no Combine
+- **Concurrency**: Swift 6.2 strict concurrency — default `@MainActor` isolation, `@concurrent` for background work
 - **Persistence**: SwiftData for offline caching
 - **Networking**: URLSession with async/await, Codable DTOs
-- **Auth**: AWS Cognito PKCE via `ASWebAuthenticationSession`, Keychain token storage
+- **Auth**: AWS Cognito PKCE via `ASWebAuthenticationSession`, Keychain token storage (native API)
 - **DI**: Protocol-based, manual injection via `DependencyContainer`
-- **Navigation**: Coordinator pattern with typed `NavigationPath`
+- **Navigation**: Coordinator pattern with typed `NavigationPath`; `Tab` API with `tabBarMinimizeBehavior`
 
 See `docs/architecture.md` for full details.
 
@@ -67,7 +69,7 @@ swift-format format --in-place --recursive Sources/
 ### Code Style
 - **Naming**: PascalCase for types, camelCase for properties/functions
 - **Views**: `*View.swift` suffix (e.g., `ReportsListView.swift`)
-- **ViewModels**: `*ViewModel.swift` suffix, `@Observable @MainActor` classes
+- **ViewModels**: `*ViewModel.swift` suffix, `@Observable` classes (implicitly `@MainActor` in Swift 6.2)
 - **DTOs**: `*Request.swift` / `*Response.swift` suffix, `Codable` structs
 - **Protocols**: Noun or adjective, no `Protocol` suffix (e.g., `ReportRepository`)
 - **Tests**: `*Tests.swift` suffix
@@ -80,6 +82,15 @@ swift-format format --in-place --recursive Sources/
 - Mappers convert between DTOs ↔ Domain models ↔ SwiftData models
 - All async work uses Swift Concurrency (async/await, Task)
 - No force unwraps except in tests and previews
+
+### Liquid Glass Rules
+- Glass is for the **navigation layer only** — tab bars, toolbars, floating controls, action buttons
+- **Never** apply `glassEffect()` to content (lists, cards, forms, text blocks)
+- Use `.interactive()` only on tappable elements
+- Use `GlassEffectContainer` to group related glass elements
+- Use `.buttonStyle(.glass)` or `.buttonStyle(.glassProminent)` for glass buttons
+- Keep glass shapes consistent within a feature (all capsules, or all circles)
+- System components (TabView, NavigationStack toolbar) get Liquid Glass automatically
 
 ### Error Handling
 - Never silently swallow errors
@@ -111,23 +122,23 @@ See `docs/api-and-networking.md` for endpoint catalog and auth flow.
 
 | Package | Purpose |
 |---------|---------|
-| KeychainAccess | Keychain wrapper |
 | Firebase iOS SDK | Push notifications (FCM) + Crashlytics |
 | SwiftLint | Code linting (build plugin) |
 | Nuke | Async image loading |
 
-No Alamofire, no Combine, no RxSwift, no Realm.
+No KeychainAccess (native API sufficient at iOS 26), no Alamofire, no Combine, no RxSwift, no Realm.
 
 ---
 
 ## Design System
 
-- **Theme**: "Serene Bloom" — teal/sage/amber palette, glass morphic cards
+- **Design Language**: Liquid Glass (iOS 26) for navigation layer
+- **Brand Theme**: "Serene Bloom" — teal/sage/amber gradient background that refracts through glass
 - **Fonts**: DM Serif Display (headings), Outfit (body), DM Mono (data)
 - **Icons**: SF Symbols throughout
-- **Dark mode**: Full support, follows system appearance
+- **Dark mode**: Full support, follows system appearance; glass adapts automatically
 
-See `docs/design-system.md` for color tokens, components, and spacing.
+See `docs/design-system.md` for Liquid Glass API reference, color tokens, components, and spacing.
 
 ---
 

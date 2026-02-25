@@ -4,23 +4,24 @@
 
 | Requirement | Value |
 |-------------|-------|
-| **Minimum iOS** | 17.0 |
-| **Target iOS** | 18.x |
-| **Language** | Swift 6 (strict concurrency) |
-| **UI Framework** | SwiftUI |
-| **IDE** | Xcode 16+ |
+| **Minimum iOS** | 26.0 |
+| **Language** | Swift 6.2 (strict concurrency) |
+| **UI Framework** | SwiftUI with Liquid Glass |
+| **IDE** | Xcode 26+ |
 | **Dependency Manager** | Swift Package Manager (built-in) |
 | **Architecture** | MVVM + Clean Architecture |
-| **Minimum Xcode** | 16.0 |
 
-### Why iOS 17+
+### Why iOS 26+
 
-- `@Observable` macro — simpler, more performant state management
-- `SwiftData` — native persistence (replaces Core Data boilerplate)
+- **Liquid Glass** — Apple's new design system with `glassEffect()`, `GlassEffectContainer`, morphing transitions
+- **Floating Tab Bar** — Native Liquid Glass tab bar with `tabBarMinimizeBehavior`, `TabSection`, `sidebarAdaptable`
+- **Glass Toolbars** — System automatically applies Liquid Glass to navigation bars and toolbars
+- **Swift 6.2** — Approachable concurrency with `@concurrent`, default main actor isolation
+- `@Observable` macro — simpler, more performant state management (iOS 17+)
+- `SwiftData` — native persistence, mature and stable by iOS 26
 - `NavigationStack` with typed path — modern navigation
 - `#Preview` macro — streamlined previews
-- `TipKit` — contextual tips for onboarding
-- Covers 95%+ of active iOS devices as of 2026
+- No need for `#available` checks or fallbacks — single deployment target simplifies code
 
 ---
 
@@ -31,6 +32,7 @@
 | Technology | Purpose |
 |------------|---------|
 | **SwiftUI** | All UI — declarative, composable views |
+| **Liquid Glass** | `glassEffect()`, `GlassEffectContainer`, glass morphing transitions |
 | **SF Symbols** | Icons throughout the app (system-provided, resolution-independent) |
 | **Swift Charts** | Health metric visualizations (report parameters over time) |
 | **PDFKit** | In-app PDF rendering for medical reports |
@@ -50,7 +52,7 @@
 
 | Technology | Purpose |
 |------------|---------|
-| **Keychain Services** | Secure token storage (via KeychainAccess library) |
+| **Keychain Services** | Secure token storage (native API — no wrapper library needed at iOS 26) |
 | **ASWebAuthenticationSession** | OAuth/PKCE flows (Cognito hosted UI) |
 | **CryptoKit** | SHA256 for PKCE challenges + file checksum verification |
 | **App Transport Security** | TLS enforcement (system-level) |
@@ -66,8 +68,8 @@
 
 | Technology | Purpose |
 |------------|---------|
-| **Swift Concurrency** | `async/await`, `Task`, `AsyncSequence` for all async work |
-| **@MainActor** | Main thread UI updates in ViewModels |
+| **Swift 6.2 Concurrency** | `async/await`, `Task`, `AsyncSequence`, `@concurrent` |
+| **@MainActor** | Main thread UI updates in ViewModels (default isolation in Swift 6.2) |
 | **Sendable** | Thread-safe data types |
 
 ### Developer Tools
@@ -77,7 +79,7 @@
 | **SwiftLint** | Code style enforcement (build plugin) |
 | **OSLog** | Structured logging (no PII) |
 | **Instruments** | Performance profiling |
-| **XCTest** | Unit + integration tests |
+| **XCTest / Swift Testing** | Unit + integration tests |
 | **XCUITest** | UI automation tests |
 
 ---
@@ -88,8 +90,7 @@ Minimal dependencies — prefer Apple frameworks. Only add packages when they pr
 
 | Package | Version | Purpose | Justification |
 |---------|---------|---------|---------------|
-| [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) | ~> 4.2 | Keychain wrapper | Clean API over raw Security framework; handles edge cases |
-| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | ~> 11.0 | FCM push notifications | Required for push delivery infrastructure |
+| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | ~> 11.0 | FCM push notifications + Crashlytics | Required for push delivery infrastructure |
 | [SwiftLint](https://github.com/realm/SwiftLint) | ~> 0.57 | Code linting | Consistent code style across team |
 | [Nuke](https://github.com/kean/Nuke) | ~> 12.0 | Image loading + caching | Efficient async image pipeline for report thumbnails |
 
@@ -97,6 +98,7 @@ Minimal dependencies — prefer Apple frameworks. Only add packages when they pr
 
 | Package | Reason for Rejection |
 |---------|---------------------|
+| KeychainAccess | Native Keychain API is sufficient at iOS 26; no need for wrapper |
 | Alamofire | URLSession async/await is sufficient; no need for extra abstraction |
 | Moya | Over-abstraction for our endpoint count |
 | Realm | SwiftData is native and sufficient |

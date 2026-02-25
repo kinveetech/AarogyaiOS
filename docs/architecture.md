@@ -4,7 +4,7 @@
 
 AarogyaiOS is the native iOS client for the Aarogya healthcare platform by Kinvee Technologies. It provides patients, doctors, and lab technicians with secure access to medical records, report management, access grants, emergency contacts, and DPDPA-compliant consent management.
 
-The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0) using PKCE-based authentication through AWS Cognito.
+The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** design language and **Swift 6.2** concurrency model. It communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0) using PKCE-based authentication through AWS Cognito.
 
 ---
 
@@ -15,7 +15,9 @@ The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0
 │                   Presentation                       │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
 │  │  Views    │→ │ViewModels│→ │  Navigation      │  │
-│  │ (SwiftUI)│  │ (@Observable)│  │ (Coordinator)  │  │
+│  │ (SwiftUI)│  │(@Observable)│  │ (Coordinator)  │  │
+│  │ + Liquid  │  │          │  │                  │  │
+│  │   Glass   │  │          │  │                  │  │
 │  └──────────┘  └──────────┘  └──────────────────┘  │
 ├─────────────────────────────────────────────────────┤
 │                    Domain                            │
@@ -27,7 +29,7 @@ The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0
 │                     Data                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
 │  │  Network │  │  Local   │  │ Repository       │  │
-│  │  (API)   │  │ (SwiftData)│  │ Implementations│  │
+│  │  (API)   │  │(SwiftData)│  │ Implementations │  │
 │  └──────────┘  └──────────┘  └──────────────────┘  │
 ├─────────────────────────────────────────────────────┤
 │                  Infrastructure                      │
@@ -41,7 +43,7 @@ The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0
 ### Layer Responsibilities
 
 #### Presentation Layer
-- **Views**: SwiftUI views, purely declarative UI. No business logic.
+- **Views**: SwiftUI views with Liquid Glass design. Purely declarative UI. No business logic. System components (TabView, toolbar, NavigationStack) automatically adopt Liquid Glass. Custom floating controls use `glassEffect()` and `GlassEffectContainer`.
 - **ViewModels**: `@Observable` classes that hold view state, call use cases, and expose data. One ViewModel per screen (or per logical feature section).
 - **Navigation**: Coordinator pattern using `NavigationStack` with typed `NavigationPath`. Each tab has its own coordinator.
 
@@ -56,7 +58,7 @@ The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0
 - **Repository Implementations**: Concrete implementations that coordinate between network and local storage. Implement cache-then-network or network-first strategies as appropriate.
 
 #### Infrastructure Layer
-- **Keychain**: Secure token storage (access token, refresh token, ID token).
+- **Keychain**: Secure token storage (access token, refresh token, ID token). Uses native Keychain Services API.
 - **Firebase**: Push notification registration and handling (FCM).
 - **S3 Upload**: Direct presigned URL upload for report files.
 
@@ -64,27 +66,35 @@ The app communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0
 
 ## Key Architecture Decisions
 
-### 1. SwiftUI-First (No UIKit)
+### 1. iOS 26+ Only — Liquid Glass Native
 
-**Rationale**: The app targets iOS 17+ which provides mature SwiftUI APIs including `NavigationStack`, `@Observable`, `.searchable`, `.sheet`, `.alert`, and comprehensive layout primitives. No UIKit bridging needed.
+**Rationale**: Targeting iOS 26 exclusively means no `#available` checks or material fallbacks. Every SwiftUI component uses Liquid Glass natively — tab bars float, toolbars are glass, navigation bars refract content. The Serene Bloom gradient background shines through all glass surfaces, creating a cohesive brand experience.
 
-### 2. @Observable over Combine
+### 2. SwiftUI-First (No UIKit)
 
-**Rationale**: iOS 17's `@Observable` macro replaces `ObservableObject`/`@Published` with simpler, more performant observation. Eliminates Combine boilerplate. Async/await handles all asynchronous work.
+**Rationale**: iOS 26 provides mature SwiftUI APIs: `NavigationStack`, `@Observable`, Liquid Glass `glassEffect()`, `GlassEffectContainer`, `tabBarMinimizeBehavior`, `TabSection`, `.searchable`, `.sheet`, and comprehensive layout primitives. No UIKit bridging needed.
 
-### 3. SwiftData for Local Persistence
+### 3. Swift 6.2 Strict Concurrency
 
-**Rationale**: SwiftData (iOS 17+) provides native Swift persistence with `@Model` macro, automatic CloudKit sync capability, and tight SwiftUI integration. Used for offline report caching and user profile caching.
+**Rationale**: Swift 6.2's approachable concurrency simplifies safe concurrent code. Default main actor isolation means ViewModels and views are implicitly `@MainActor`. The `@concurrent` attribute is used when explicit background execution is needed (network calls, file I/O). No Combine, no GCD, no completion handlers.
 
-### 4. Direct API Communication (No BFF)
+### 4. @Observable over Combine
+
+**Rationale**: `@Observable` macro replaces `ObservableObject`/`@Published` with simpler, more performant observation. Eliminates Combine boilerplate. Async/await handles all asynchronous work.
+
+### 5. SwiftData for Local Persistence
+
+**Rationale**: SwiftData provides native Swift persistence with `@Model` macro, `@Query` for declarative fetching, predicate-based filtering, and tight SwiftUI integration. Mature and stable by iOS 26. Used for offline report caching and user profile caching.
+
+### 6. Direct API Communication (No BFF)
 
 **Rationale**: Unlike the web frontend which uses a BFF (Next.js API routes) to hide tokens, the iOS app communicates directly with the backend API. Tokens are stored in iOS Keychain (hardware-backed secure storage), which provides equivalent or better security than httpOnly cookies.
 
-### 5. Coordinator Pattern for Navigation
+### 7. Coordinator Pattern for Navigation
 
 **Rationale**: Separates navigation logic from views. Each tab maintains its own `NavigationPath`. Deep links and notification taps route through coordinators. Enables testable navigation flows.
 
-### 6. Protocol-Oriented Repository Pattern
+### 8. Protocol-Oriented Repository Pattern
 
 **Rationale**: Repository protocols in the domain layer enable:
 - Swapping real/mock implementations for testing
@@ -179,9 +189,9 @@ The `AuthInterceptor` intercepts these globally and routes through the coordinat
 
 ## Concurrency Model
 
-- All async work uses Swift Concurrency (`async/await`, `Task`, `AsyncSequence`)
-- ViewModels use `@MainActor` to ensure UI state updates on main thread
-- Network and I/O operations run on cooperative thread pool
+- All async work uses Swift 6.2 Concurrency (`async/await`, `Task`, `AsyncSequence`)
+- Default main actor isolation — ViewModels and views are implicitly `@MainActor`
+- `@concurrent` functions for explicit background work (network, file I/O)
 - File uploads use `URLSession` delegate for progress reporting
 - No Combine, no GCD, no completion handlers
 
@@ -211,7 +221,7 @@ The `AuthInterceptor` intercepts these globally and routes through the coordinat
 - All interactive elements have accessibility labels
 - Dynamic Type support (no fixed font sizes)
 - VoiceOver: logical reading order, custom actions where needed
-- Reduce Motion: disable ambient animations when enabled
+- Liquid Glass automatically adapts for Reduce Transparency, Increase Contrast, and Reduce Motion
 - Minimum touch target: 44x44pt
 - Color contrast: WCAG AA minimum (4.5:1 for text)
 

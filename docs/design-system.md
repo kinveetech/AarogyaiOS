@@ -1,8 +1,106 @@
-# Design System — Serene Bloom (iOS Adaptation)
+# Design System — Liquid Glass + Serene Bloom
 
 ## Overview
 
-The iOS app adapts the "Serene Bloom" design language from the web frontend while following Apple's Human Interface Guidelines. The result is a healthcare app that feels native to iOS while maintaining visual consistency with the web portal.
+The iOS app embraces Apple's **Liquid Glass** design language (iOS 26) for all navigation-layer UI — tab bars, toolbars, navigation bars, and interactive controls. App content uses the **Serene Bloom** palette from the web frontend as the background canvas that shines through the glass. The result is a healthcare app that feels fully native to iOS 26 while maintaining brand consistency with the web portal.
+
+### Design Principles
+
+- **Glass is for navigation, not content** — Liquid Glass is applied to controls, toolbars, and floating UI. Content (lists, cards, forms) sits beneath the glass layer.
+- **Let the system lead** — Standard SwiftUI components (TabView, NavigationStack, toolbar) automatically adopt Liquid Glass. Only apply `glassEffect()` to custom floating controls.
+- **Consistent shapes** — Keep glass shapes consistent within a feature (all circles, or all capsules).
+- **Interactive glass for tappable elements** — Use `.interactive()` only on buttons and controls.
+
+---
+
+## Liquid Glass API Reference
+
+### Core Modifier
+
+```swift
+// Apply Liquid Glass to any view
+.glassEffect(_ glass: Glass = .regular, in shape: some Shape = DefaultGlassEffectShape())
+```
+
+### Glass Variants
+
+| Variant | Use | Example |
+|---------|-----|---------|
+| `.regular` | Standard controls, toolbars, floating buttons | Filter bar, FAB |
+| `.regular.interactive()` | Tappable buttons, toggles | Upload button, tool buttons |
+| `.prominent` | Selected/active state, primary actions | Active filter chip, confirm button |
+| `.prominent.interactive()` | Primary tappable buttons | Selected tab tool, primary CTA |
+| `.clear` | Overlay on media-rich backgrounds | Photo viewer overlay |
+| `.regular.tint(.color)` | Semantically tinted glass | Status-colored controls |
+
+### Button Styles
+
+```swift
+// Glass button styles (system-provided)
+Button("Confirm") { }
+    .buttonStyle(.glass)            // Standard glass button
+
+Button("Submit") { }
+    .buttonStyle(.glassProminent)   // Emphasized glass button
+```
+
+### GlassEffectContainer
+
+Groups multiple glass elements into a unified composition. Elements within the container share a sampling region and can morph between each other.
+
+```swift
+GlassEffectContainer(spacing: 16) {
+    HStack(spacing: 16) {
+        ForEach(tools) { tool in
+            Button { select(tool) } label: {
+                Image(systemName: tool.icon)
+                    .frame(width: 44, height: 44)
+            }
+            .glassEffect(
+                tool.isSelected ? .prominent.interactive() : .regular.interactive(),
+                in: .circle
+            )
+        }
+    }
+}
+```
+
+### Glass Morphing Transitions
+
+Use `glassEffectID` with a shared `@Namespace` to morph glass elements between states:
+
+```swift
+@Namespace private var namespace
+
+GlassEffectContainer(spacing: 24) {
+    HStack(spacing: 24) {
+        Button("Reports") { }
+            .glassEffect(.prominent.interactive(), in: .capsule)
+            .glassEffectID("activeFilter", in: namespace)
+
+        if showingMore {
+            Button("Lab") { }
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .glassEffectID("labFilter", in: namespace)
+        }
+    }
+}
+```
+
+---
+
+## System Liquid Glass (Automatic)
+
+These SwiftUI components automatically use Liquid Glass on iOS 26 — no manual `glassEffect()` needed:
+
+| Component | Liquid Glass Behavior |
+|-----------|----------------------|
+| **TabView** | Floating glass tab bar, minimizes on scroll |
+| **NavigationStack toolbar** | Glass navigation bar and toolbar |
+| **ToolbarItemGroup** | Grouped glass toolbar buttons |
+| **.searchable** | Glass search bar, integrates with tab bar |
+| **Sheet presentation** | Glass drag handle and chrome |
+| **.alert / .confirmationDialog** | Glass backdrop |
 
 ---
 
@@ -21,7 +119,6 @@ The iOS app adapts the "Serene Bloom" design language from the web frontend whil
 │                       │                │              │
 │ bg.primary            │ #FAFAF5 (cream)│ #0C1917      │
 │ bg.secondary          │ #F0F4F0        │ #132624      │
-│ bg.glass              │ white/60%      │ white/8%     │
 │ bg.gradient.start     │ #FBF9F0        │ #0C1917      │
 │ bg.gradient.end       │ #E8F0E8        │ #132624      │
 │                       │                │              │
@@ -35,11 +132,24 @@ The iOS app adapts the "Serene Bloom" design language from the web frontend whil
 │ status.info           │ #3B82F6 (blue) │ #60A5FA      │
 │                       │                │              │
 │ border.default        │ #E5E7EB        │ #374151      │
-│ border.glass          │ white/20%      │ white/10%    │
 └───────────────────────┴────────────────┴──────────────┘
 ```
 
 Defined as Color assets in `Assets.xcassets` with light/dark variants.
+
+### Glass Tinting
+
+Use brand colors as glass tints for semantic meaning:
+
+```swift
+// Teal-tinted glass for primary actions
+.glassEffect(.regular.tint(.brand.primary))
+
+// Status-tinted glass for badges
+.glassEffect(.regular.tint(.status.normal))   // Verified
+.glassEffect(.regular.tint(.status.warning))  // Processing
+.glassEffect(.regular.tint(.status.critical)) // Error
+```
 
 ---
 
@@ -47,13 +157,11 @@ Defined as Color assets in `Assets.xcassets` with light/dark variants.
 
 ### Fonts
 
-| Role | Font | iOS Equivalent |
-|------|------|----------------|
-| Headings | DM Serif Display | Custom font (bundled) |
-| Body | Outfit | Custom font (bundled) |
-| Monospace / Data | DM Mono | Custom font (bundled) |
-
-Fallback: System fonts (`SF Pro`) if custom fonts fail to load.
+| Role | Font | Fallback |
+|------|------|----------|
+| Headings | DM Serif Display | SF Pro Serif (system) |
+| Body | Outfit | SF Pro (system) |
+| Monospace / Data | DM Mono | SF Mono (system) |
 
 ### Text Styles
 
@@ -70,62 +178,15 @@ Fallback: System fonts (`SF Pro`) if custom fonts fail to load.
 | `caption` | Outfit | 12pt | Regular | Labels, badges |
 | `data` | DM Mono | 15pt | Medium | Report values, numbers |
 
-All text styles support Dynamic Type scaling.
+All text styles support Dynamic Type scaling. Text on glass surfaces automatically receives vibrant treatment from the system.
 
 ---
 
 ## Component Library
 
-### Glass Card
-
-The primary container for content — translucent with subtle border and blur.
-
-```
-Properties:
-  - Background: bg.glass
-  - Border: border.glass, 1pt
-  - Corner radius: 16pt
-  - Blur: .ultraThinMaterial
-  - Shadow: 0 2pt 8pt black/5%
-  - Padding: 16pt
-```
-
-### Primary Button
-
-Full-width rounded button for primary actions.
-
-```
-Properties:
-  - Background: brand.primary
-  - Text: white, Outfit Semibold 17pt
-  - Corner radius: full (capsule)
-  - Height: 50pt
-  - Hover/press: scale(0.98) + opacity(0.9)
-  - Disabled: opacity(0.5)
-```
-
-### Status Badge
-
-Compact label showing report or grant status.
-
-```
-Variants:
-  - Pending:    bg amber/10%, text amber, border amber/20%
-  - Processing: bg blue/10%, text blue, border blue/20%
-  - Verified:   bg green/10%, text green, border green/20%
-  - Active:     bg teal/10%, text teal, border teal/20%
-  - Expired:    bg gray/10%, text gray, border gray/20%
-  - Revoked:    bg red/10%, text red, border red/20%
-
-Properties:
-  - Font: Outfit Semibold 12pt
-  - Corner radius: full (capsule)
-  - Padding: 4pt vertical, 10pt horizontal
-```
-
 ### Report Card
 
-Card in the reports list showing report summary.
+Content card in the reports list. This is **content** — no glass effect applied directly.
 
 ```
 Layout:
@@ -138,9 +199,57 @@ Layout:
   └─────────────────────────────────────┘
 
 Properties:
-  - Glass card container
+  - Background: bg.secondary (subtle, not glass)
+  - Corner radius: 16pt
   - Type icon: SF Symbol with tinted background circle
   - Tap: Push to detail
+```
+
+### Glass Filter Bar
+
+Floating filter chips for the reports list — uses Liquid Glass.
+
+```swift
+GlassEffectContainer(spacing: 4) {
+    HStack(spacing: 4) {
+        ForEach(ReportType.allCases) { type in
+            Button(type.displayName) {
+                selectedType = type
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .glassEffect(
+                selectedType == type ? .prominent.interactive() : .regular.interactive(),
+                in: .capsule
+            )
+        }
+    }
+}
+```
+
+### Glass Floating Action Button
+
+Upload button on the reports list — floating glass circle.
+
+```swift
+Button { showUpload = true } label: {
+    Image(systemName: "plus")
+        .font(.title2)
+        .frame(width: 56, height: 56)
+}
+.glassEffect(.regular.tint(.brand.primary).interactive(), in: .circle)
+```
+
+### Status Badge
+
+Compact label showing report or grant status. Uses tinted glass.
+
+```swift
+Text(status.displayName)
+    .font(.caption.weight(.semibold))
+    .padding(.horizontal, 10)
+    .padding(.vertical, 4)
+    .glassEffect(.regular.tint(status.color), in: .capsule)
 ```
 
 ### Empty State
@@ -157,7 +266,7 @@ Layout:
   │   "Upload your first medical       │
   │    report to get started"           │
   │                                     │
-  │       [Upload Report]              │
+  │       [ Upload Report ]             │  ← .buttonStyle(.glassProminent)
   └─────────────────────────────────────┘
 ```
 
@@ -166,41 +275,29 @@ Layout:
 Non-intrusive banner for transient errors.
 
 ```
-Layout:
-  ┌─────────────────────────────────────┐
-  │ ⚠ Error message here    [Retry] [✕] │
-  └─────────────────────────────────────┘
-
 Properties:
-  - Background: status.critical/10%
-  - Border: status.critical/20%
+  - Background: status.critical tinted glass
   - Position: top of screen, below nav bar
   - Auto-dismiss: 5 seconds (or manual)
+  - Retry button: .glassEffect(.regular.interactive())
 ```
 
 ---
 
 ## Gradient Background
 
-The app's signature background — a subtle gradient applied to the root view.
+The app's signature background — the canvas that shows through all Liquid Glass surfaces.
 
-```
-Light mode:
-  LinearGradient(
-    colors: [bg.gradient.start, bg.gradient.end],
-    startPoint: .topLeading,    // 165° equivalent
-    endPoint: .bottomTrailing
-  )
-
-Dark mode:
-  LinearGradient(
-    colors: [bg.gradient.start, bg.gradient.end],
+```swift
+LinearGradient(
+    colors: [Color.bg.gradientStart, Color.bg.gradientEnd],
     startPoint: .topLeading,
     endPoint: .bottomTrailing
-  )
+)
+.ignoresSafeArea()
 ```
 
-Applied once at the root `ContentView` level. Child views use `.clear` or `.glass` backgrounds.
+Applied once at the root `ContentView` level. This gradient is what gives the glass its character — the teal/cream tones refract through all glass surfaces.
 
 ---
 
@@ -210,18 +307,26 @@ Applied once at the root `ContentView` level. Child views use `.clear` or `.glas
 
 | Animation | Use | Duration |
 |-----------|-----|----------|
-| `.easeInOut` | Default transitions | 0.3s |
-| `.spring(response: 0.4)` | Button presses, card interactions | 0.4s |
-| `.spring(response: 0.6)` | Sheet presentations | 0.6s |
+| `.smooth` | Glass morphing transitions | System default |
+| `.bouncy` | Glass button presses | System default |
+| `.spring(response: 0.4)` | Card interactions | 0.4s |
 | `.easeOut` | Fade-in on appear | 0.2s |
 
-### Reduced Motion
+### Glass Morphing
 
-When `UIAccessibility.isReduceMotionEnabled`:
-- Disable ambient orb animations
-- Replace spring animations with cross-dissolve
-- No parallax or particle effects
-- Keep functional transitions (sheet, push/pop)
+Glass elements within a `GlassEffectContainer` morph automatically when:
+- Views appear/disappear with `withAnimation`
+- `glassEffectID` changes between states
+- Container spacing determines merge proximity
+
+### Accessibility — Reduced Motion & Transparency
+
+Liquid Glass automatically adapts when accessibility settings are enabled:
+- **Reduce Transparency**: System increases glass frosting for clarity (automatic)
+- **Increase Contrast**: Stark colors and borders on glass (automatic)
+- **Reduce Motion**: Tones down elastic and morphing animations (automatic)
+
+No manual `@Environment` checks needed — the system handles glass accessibility.
 
 ---
 
@@ -232,10 +337,10 @@ Consistent spacing using a 4pt base unit:
 | Token | Value | Use |
 |-------|-------|-----|
 | `xxs` | 2pt | Inline icon spacing |
-| `xs` | 4pt | Tight padding |
+| `xs` | 4pt | Tight padding, glass element spacing |
 | `sm` | 8pt | Between related elements |
 | `md` | 12pt | Section internal padding |
-| `base` | 16pt | Default padding, card insets |
+| `base` | 16pt | Default padding, card insets, GlassEffectContainer spacing |
 | `lg` | 20pt | Between sections |
 | `xl` | 24pt | Screen edge padding |
 | `2xl` | 32pt | Major section gaps |
@@ -276,10 +381,9 @@ Consistent spacing using a 4pt base unit:
 
 Full dark mode support. All colors defined with light/dark variants in the asset catalog. Key differences:
 
-- Background: Dark teal instead of cream
-- Glass cards: White/8% opacity instead of white/60%
-- Borders: Lighter opacity on dark
-- Status colors: Slightly brighter variants for contrast
-- Gradient: Inverted from light, maintaining the teal theme
+- Background gradient: Dark teal instead of cream — changes how glass refracts
+- Content cards: Slightly elevated backgrounds for contrast
+- Status colors: Brighter variants for accessibility
+- Glass tints: Same semantic colors, system adjusts opacity automatically
 
-The app respects system appearance setting. No in-app toggle (follows system).
+The app respects system appearance setting. No in-app toggle (follows system). Liquid Glass automatically adapts its refraction and specular highlights to dark mode.

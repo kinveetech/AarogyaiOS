@@ -2,7 +2,7 @@
 
 ## Navigation Architecture
 
-The app uses a coordinator pattern built on `NavigationStack`. The root coordinator manages auth state, and each main tab has its own navigation stack.
+The app uses a coordinator pattern built on `NavigationStack`. The root coordinator manages auth state, and each main tab has its own navigation stack. The tab bar uses iOS 26's `Tab` API with the floating Liquid Glass tab bar.
 
 ```
 AppCoordinator (root)
@@ -12,7 +12,7 @@ AppCoordinator (root)
 │   ├── PendingApprovalView
 │   └── RejectedRegistrationView
 │
-└── Main Tab Bar (authenticated)
+└── Main Tab Bar (authenticated) — Liquid Glass floating tab bar
     ├── Reports Tab
     │   ├── ReportsListView
     │   ├── ReportDetailView
@@ -36,9 +36,39 @@ AppCoordinator (root)
 
 ---
 
-## Tab Bar
+## Tab Bar — Liquid Glass
 
-Four tabs matching the web frontend's bottom navigation:
+The tab bar uses iOS 26's `Tab` API (not the deprecated `tabItem()`). The system automatically renders it as a floating Liquid Glass bar that minimizes on scroll.
+
+```swift
+TabView(selection: $selectedTab) {
+    Tab("Reports", systemImage: "doc.text", value: .reports) {
+        NavigationStack {
+            ReportsListView()
+        }
+    }
+
+    Tab("Access", systemImage: "person.2", value: .access) {
+        NavigationStack {
+            AccessGrantsView()
+        }
+    }
+
+    Tab("Emergency", systemImage: "phone.fill", value: .emergency) {
+        NavigationStack {
+            EmergencyContactsView()
+        }
+    }
+
+    Tab("Settings", systemImage: "gearshape", value: .settings) {
+        NavigationStack {
+            SettingsView()
+        }
+    }
+}
+.tabBarMinimizeBehavior(.onScrollDown)
+.tabViewStyle(.sidebarAdaptable)     // Sidebar on iPad, tab bar on iPhone
+```
 
 | Tab | Icon | Label | Destination |
 |-----|------|-------|-------------|
@@ -47,7 +77,11 @@ Four tabs matching the web frontend's bottom navigation:
 | 3 | `phone.fill` | Emergency | `EmergencyContactsView` |
 | 4 | `gearshape` | Settings | `SettingsView` |
 
-SF Symbols used throughout for consistency.
+### Tab Bar Behaviors
+
+- **Floating**: The tab bar doesn't stick to the bottom edge — it floats over content with Liquid Glass
+- **Minimizes on scroll**: `.tabBarMinimizeBehavior(.onScrollDown)` collapses the tab bar when scrolling down lists
+- **Search integration**: If a search tab is added, it transforms from tab icon to search field when selected
 
 ---
 
@@ -147,25 +181,45 @@ SF Symbols used throughout for consistency.
 **Route**: Reports tab, main screen.
 
 **Layout**:
-- Search bar (`.searchable` modifier)
-- Filter chips: All, Lab, Prescription, Imaging, Discharge, Other
-- Status filter: All, Pending, Processing, Verified
-- Report cards in scrollable list (LazyVStack)
+- `.searchable` modifier on NavigationStack (glass search bar)
+- Glass filter chips via `GlassEffectContainer` — type filters morph between selected/deselected states
+- Report cards in scrollable `List`
 - Pull-to-refresh
-- Floating action button: "+" → Upload
+- Floating glass action button: "+" → Upload
+- Toolbar actions via `ToolbarItemGroup` (automatic Liquid Glass)
+
+**Glass Filter Bar**:
+```swift
+GlassEffectContainer(spacing: 4) {
+    HStack(spacing: 4) {
+        ForEach(filterOptions) { option in
+            Button(option.label) { selectedFilter = option }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .glassEffect(
+                    selectedFilter == option
+                        ? .prominent.interactive()
+                        : .regular.interactive(),
+                    in: .capsule
+                )
+        }
+    }
+}
+```
 
 **Report Card**:
 - Report type icon + color badge
 - Title (report name or auto-generated)
 - Date, lab/doctor name
-- Status badge (pending/processing/verified)
+- Status badge (tinted glass capsule)
 - Highlight parameter if available (e.g., "Hemoglobin: 14.2 g/dL")
 
 **Empty State**:
 - Illustration + "No reports yet"
-- "Upload your first report" CTA
+- "Upload your first report" CTA (`.buttonStyle(.glassProminent)`)
 
 **Behavior**:
+- Tab bar minimizes on scroll (`.tabBarMinimizeBehavior(.onScrollDown)`)
 - Pagination: Load more on scroll (cursor-based)
 - Search: Debounced (300ms), searches by title
 - Filters: Client-side filtering on type and status
@@ -178,7 +232,8 @@ SF Symbols used throughout for consistency.
 **Route**: Push from Reports list.
 
 **Layout**:
-- Navigation bar: Back, title, overflow menu (download, delete)
+- Navigation bar with Liquid Glass (automatic) — Back, title
+- Toolbar actions in glass groups: share, download, delete
 - Report metadata section (type badge, date, lab, doctor, status)
 - PDF viewer section (full-width, expandable to full-screen)
 - Extracted parameters table:
@@ -188,6 +243,21 @@ SF Symbols used throughout for consistency.
   - Reference range
   - Status icon (normal/high/low)
 - Notes section (if present)
+
+**Toolbar**:
+```swift
+.toolbar {
+    ToolbarItemGroup(placement: .primaryAction) {
+        Button { shareReport() } label: { Image(systemName: "square.and.arrow.up") }
+        Button { downloadReport() } label: { Image(systemName: "arrow.down.doc") }
+    }
+    ToolbarItemGroup(placement: .secondaryAction) {
+        Button(role: .destructive) { deleteReport() } label: {
+            Label("Delete", systemImage: "trash")
+        }
+    }
+}
+```
 
 **Actions**:
 - Download: `POST /v1/reports/download-url` → open in share sheet
@@ -220,7 +290,7 @@ SF Symbols used throughout for consistency.
 - File name and size display
 - Cancel button
 - On success: Checkmark animation → "View Report" / "Back to Reports"
-- On failure: Error message + retry button
+- On failure: Error message + retry button (`.buttonStyle(.glass)`)
 
 ---
 
@@ -235,9 +305,9 @@ SF Symbols used throughout for consistency.
   - Doctor name + specialization
   - Report count or "All reports"
   - Expiry date + time remaining
-  - Status indicator (active = green, expiring soon = amber, expired = gray)
+  - Status badge (tinted glass — active=green, expiring=amber, expired=gray)
   - Revoke button (active grants only)
-- "Grant Access" button at bottom
+- "Grant Access" glass button at bottom
 
 **Empty State**:
 - "No active grants"
@@ -247,7 +317,7 @@ SF Symbols used throughout for consistency.
 
 ### 9. Create Access Grant (Sheet)
 
-**Route**: Bottom sheet from Access Grants screen.
+**Route**: Bottom sheet from Access Grants screen. Sheet chrome automatically uses Liquid Glass.
 
 **Layout**:
 - Doctor search field (autocomplete from `/v1/doctors/search`)
@@ -256,7 +326,7 @@ SF Symbols used throughout for consistency.
   - OR multi-select report list
 - Expiry date picker (optional, default: no expiry)
 - Purpose/reason text field
-- "Grant Access" button
+- "Grant Access" button (`.buttonStyle(.glassProminent)`)
 
 **Behavior**:
 - Doctor search: Debounced API call, results in dropdown
@@ -275,7 +345,7 @@ SF Symbols used throughout for consistency.
 - Contact cards (max 4):
   - Name, phone, relationship badge
   - Edit / Delete buttons
-- "Add Contact" button (disabled if 4 contacts exist)
+- "Add Contact" glass button (disabled if 4 contacts exist)
 
 **Empty State**:
 - Shield icon + "No emergency contacts"
@@ -423,8 +493,8 @@ The `DeepLinkHandler` parses these and routes through the appropriate coordinato
 | Login → Main | Auth → Tab Bar | Root swap (no animation) |
 | Reports → Detail | List → Detail | Push (NavigationStack) |
 | Reports → Upload | List → Upload | Push (NavigationStack) |
-| Access → Create Grant | List → Form | Sheet (bottom) |
-| Emergency → Form | List → Form | Sheet (bottom) |
+| Access → Create Grant | List → Form | Sheet (Liquid Glass chrome) |
+| Emergency → Form | List → Form | Sheet (Liquid Glass chrome) |
 | Settings → Subsections | List → Detail | Push (NavigationStack) |
 | Any → Login (logout) | Tab Bar → Auth | Root swap (no animation) |
 
@@ -435,4 +505,21 @@ The `DeepLinkHandler` parses these and routes through the appropriate coordinato
 - Reports list: Two-column layout (list + detail side-by-side) using `NavigationSplitView`
 - Access/Emergency/Settings: Regular list with increased content width
 - Upload flow: Centered form with max-width constraint
-- Tab bar: Sidebar navigation on iPad (`.tabViewStyle(.sidebarAdaptable)` on iOS 18+)
+- Tab bar: Sidebar navigation on iPad via `.tabViewStyle(.sidebarAdaptable)` with `.defaultAdaptableTabBarPlacement(.sidebar)`
+- `TabSection` available for grouping related tabs in the sidebar
+
+```swift
+// iPad sidebar with tab sections
+TabView(selection: $selectedTab) {
+    Tab("Reports", systemImage: "doc.text", value: .reports) { ... }
+
+    TabSection("Manage") {
+        Tab("Access", systemImage: "person.2", value: .access) { ... }
+        Tab("Emergency", systemImage: "phone.fill", value: .emergency) { ... }
+    }
+
+    Tab("Settings", systemImage: "gearshape", value: .settings) { ... }
+}
+.tabViewStyle(.sidebarAdaptable)
+.defaultAdaptableTabBarPlacement(.sidebar)
+```

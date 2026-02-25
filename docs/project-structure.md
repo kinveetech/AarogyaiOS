@@ -259,12 +259,12 @@ Defined in the Xcode project's Package Dependencies section:
 
 | Package | Use | Version |
 |---------|-----|---------|
-| [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) | Keychain wrapper | ~> 4.2 |
-| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | Push notifications (FCM) | ~> 11.0 |
+| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | Push notifications (FCM) + Crashlytics | ~> 11.0 |
 | [SwiftLint](https://github.com/realm/SwiftLint) | Code linting (build plugin) | ~> 0.57 |
 | [Nuke](https://github.com/kean/Nuke) | Async image loading + caching | ~> 12.0 |
 
 **Intentionally excluded**:
+- No KeychainAccess — native Keychain Services API is sufficient at iOS 26
 - No Alamofire — `URLSession` with async/await is sufficient
 - No Combine — `@Observable` + async/await replaces it
 - No SnapKit/layout libraries — SwiftUI handles layout natively
@@ -282,6 +282,8 @@ Defined in the Xcode project's Package Dependencies section:
 | `Release` | `https://api.aarogya.kinvee.in` | Production pool | App Store builds |
 
 Managed via `.xcconfig` files and build schemes, not `#if DEBUG` flags.
+
+**Minimum deployment target**: iOS 26.0 — no `#available` checks needed for Liquid Glass, SwiftData, or `@Observable`.
 
 ---
 
