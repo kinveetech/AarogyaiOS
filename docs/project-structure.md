@@ -277,9 +277,9 @@ Defined in the Xcode project's Package Dependencies section:
 
 | Configuration | API Base URL | Cognito | Notes |
 |---------------|-------------|---------|-------|
-| `Debug` | `http://100.108.60.90:30080` | Real AWS Cognito (ap-south-1) | k3s dev server via Tailscale |
+| `Debug` | `https://api.dev.kinvee.in` | Real AWS Cognito (ap-south-1) | k3s dev server |
 
-Single environment connecting to the real backend and AWS services. The API base URL points to the k3s dev server over Tailscale. LAN alternative: `http://10.0.10.113:30080`.
+Single environment connecting to the real backend and AWS services.
 
 Managed via `.xcconfig` files. Additional schemes (Staging, Release) will be added when production deployment begins.
 
