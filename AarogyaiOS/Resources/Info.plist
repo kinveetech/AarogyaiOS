@@ -44,6 +44,14 @@
 			<string>com.kinvee.aarogya</string>
 		</dict>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Fonts/DMSerifDisplay-Regular.ttf</string>
+		<string>Fonts/DMSerifDisplay-Italic.ttf</string>
+		<string>Fonts/Outfit-VariableFont_wght.ttf</string>
+		<string>Fonts/DMMono-Regular.ttf</string>
+		<string>Fonts/DMMono-Medium.ttf</string>
+	</array>
 	<key>API_BASE_URL</key>
 	<string>$(API_BASE_URL)</string>
 	<key>COGNITO_REGION</key>
