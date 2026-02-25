@@ -6,8 +6,8 @@ final class AarogyaiOSUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing"]
         app.launch()
-        // App should display the auth screen after failing to fetch user
-        let signInButton = app.buttons["Sign In"]
-        XCTAssertTrue(signInButton.waitForExistence(timeout: 15))
+        // App should display the login screen with the app title
+        let title = app.staticTexts["Aarogya"]
+        XCTAssertTrue(title.waitForExistence(timeout: 15))
     }
 }
