@@ -1,0 +1,27 @@
+opt_in_rules:
+  - force_unwrapping
+  - vertical_whitespace_closing_braces
+
+disabled_rules:
+  - todo
+  - blanket_disable_command
+
+included:
+  - AarogyaiOS
+
+excluded:
+  - AarogyaiOS/Preview Content
+  - AarogyaiOSTests
+  - AarogyaiOSUITests
+
+line_length:
+  warning: 120
+  error: 150
+
+file_length:
+  warning: 400
+  error: 600
+
+type_body_length:
+  warning: 300
+  error: 500

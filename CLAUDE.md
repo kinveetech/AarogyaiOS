@@ -46,20 +46,20 @@ See `docs/project-structure.md` for the full file tree.
 
 ```bash
 # Build
-xcodebuild -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 16' build
+xcodebuild -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 
 # Run tests
-xcodebuild test -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 
 # Run single test
-xcodebuild test -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 16' \
+xcodebuild test -scheme AarogyaiOS-Dev -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -only-testing:AarogyaiOSTests/ReportsListViewModelTests/testLoadReportsSuccess
 
 # Lint
-swift run swiftlint
+swiftlint lint --config .swiftlint.yml
 
-# Format (if using swift-format)
-swift-format format --in-place --recursive Sources/
+# Regenerate Xcode project (after project.yml changes)
+xcodegen generate
 ```
 
 ---
