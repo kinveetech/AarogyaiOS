@@ -3,36 +3,36 @@ import SwiftUI
 extension Color {
     // MARK: - Brand
 
-    static let brandPrimary = Color("brand.primary", bundle: .main)
-    static let brandPrimaryLight = Color("brand.primaryLight", bundle: .main)
-    static let brandSecondary = Color("brand.secondary", bundle: .main)
-    static let brandAccent = Color("brand.accent", bundle: .main)
+    static let brandPrimary = Color("BrandTeal", bundle: .main)
+    static let brandPrimaryLight = Color("BrandPrimaryLight", bundle: .main)
+    static let brandSecondary = Color("BrandSage", bundle: .main)
+    static let brandAccent = Color("BrandAmber", bundle: .main)
 
     // MARK: - Backgrounds
 
-    static let bgPrimary = Color("bg.primary", bundle: .main)
-    static let bgSecondary = Color("bg.secondary", bundle: .main)
-    static let bgGradientStart = Color("bg.gradient.start", bundle: .main)
-    static let bgGradientEnd = Color("bg.gradient.end", bundle: .main)
+    static let bgPrimary = Color("BackgroundPrimary", bundle: .main)
+    static let bgSecondary = Color("BackgroundSecondary", bundle: .main)
+    static let bgGradientStart = Color("BackgroundGradientStart", bundle: .main)
+    static let bgGradientEnd = Color("BackgroundGradientEnd", bundle: .main)
 
     // MARK: - Text
 
-    static let textPrimary = Color("text.primary", bundle: .main)
-    static let textSecondary = Color("text.secondary", bundle: .main)
-    static let textTertiary = Color("text.tertiary", bundle: .main)
+    static let textPrimary = Color("TextPrimary", bundle: .main)
+    static let textSecondary = Color("TextSecondary", bundle: .main)
+    static let textTertiary = Color("TextTertiary", bundle: .main)
 
     // MARK: - Status
 
-    static let statusNormal = Color("status.normal", bundle: .main)
-    static let statusWarning = Color("status.warning", bundle: .main)
-    static let statusCritical = Color("status.critical", bundle: .main)
-    static let statusInfo = Color("status.info", bundle: .main)
+    static let statusNormal = Color("StatusNormal", bundle: .main)
+    static let statusWarning = Color("StatusWarning", bundle: .main)
+    static let statusCritical = Color("StatusCritical", bundle: .main)
+    static let statusInfo = Color("StatusInfo", bundle: .main)
 
     // MARK: - Border
 
-    static let borderDefault = Color("border.default", bundle: .main)
+    static let borderDefault = Color("BorderDefault", bundle: .main)
 
-    // MARK: - Hex Fallbacks
+    // MARK: - Hex Initializer
 
     init(hex: UInt, opacity: Double = 1.0) {
         self.init(
@@ -45,7 +45,7 @@ extension Color {
     }
 }
 
-// MARK: - Fallback colors (used when asset catalog isn't configured yet)
+// MARK: - Fallback colors (hex values for use outside asset catalog)
 
 extension Color {
     enum Fallback {
