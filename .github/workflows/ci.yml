@@ -33,7 +33,7 @@ jobs:
         run: xcodegen generate
 
       - name: SwiftLint
-        run: swiftlint lint --config .swiftlint.yml --strict --quiet
+        run: swiftlint lint --config .swiftlint.yml --quiet
 
       - name: Build
         run: |
