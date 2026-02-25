@@ -277,11 +277,11 @@ Defined in the Xcode project's Package Dependencies section:
 
 | Configuration | API Base URL | Cognito | Notes |
 |---------------|-------------|---------|-------|
-| `Debug` | `http://localhost:30080` | LocalStack | Local development |
-| `Staging` | `https://api-staging.aarogya.kinvee.in` | Staging pool | Pre-production testing |
-| `Release` | `https://api.aarogya.kinvee.in` | Production pool | App Store builds |
+| `Debug` | `http://100.108.60.90:30080` | Real AWS Cognito (ap-south-1) | k3s dev server via Tailscale |
 
-Managed via `.xcconfig` files and build schemes, not `#if DEBUG` flags.
+Single environment connecting to the real backend and AWS services. The API base URL points to the k3s dev server over Tailscale. LAN alternative: `http://10.0.10.113:30080`.
+
+Managed via `.xcconfig` files. Additional schemes (Staging, Release) will be added when production deployment begins.
 
 **Minimum deployment target**: iOS 26.0 — no `#available` checks needed for Liquid Glass, SwiftData, or `@Observable`.
 

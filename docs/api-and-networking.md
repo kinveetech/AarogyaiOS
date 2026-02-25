@@ -2,7 +2,11 @@
 
 ## Overview
 
-The iOS app communicates directly with the AarogyaBackend REST API. Unlike the web frontend (which proxies through Next.js API routes), the iOS app makes direct HTTPS calls with Bearer token authentication. Tokens are stored in the iOS Keychain.
+The iOS app communicates directly with the AarogyaBackend REST API. Unlike the web frontend (which proxies through Next.js API routes), the iOS app makes direct HTTP calls with Bearer token authentication. Tokens are stored in the iOS Keychain.
+
+**API Base URL**: `http://100.108.60.90:30080` (k3s dev server via Tailscale). LAN alternative: `http://10.0.10.113:30080`.
+
+**Auth**: Real AWS Cognito (ap-south-1) — not LocalStack. Real S3 uploads, real CloudFront downloads.
 
 ---
 

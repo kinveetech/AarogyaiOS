@@ -122,9 +122,9 @@ Minimal dependencies — prefer Apple frameworks. Only add packages when they pr
 
 | Scheme | Configuration | Use |
 |--------|--------------|-----|
-| `AarogyaiOS-Dev` | Debug | Local development, points to dev API |
-| `AarogyaiOS-Staging` | Staging | Pre-release testing |
-| `AarogyaiOS-Release` | Release | App Store / TestFlight builds |
+| `AarogyaiOS-Dev` | Debug | Development + testing against real backend and AWS services |
+
+Single environment for now — connects to real AWS Cognito, S3, and the backend API deployed on the k3s dev server via Tailscale.
 
 ### CI/CD Pipeline (GitHub Actions)
 
@@ -135,26 +135,6 @@ Pull Request → main:
   3. Run UI tests (xcodebuild test -destination "platform=iOS Simulator")
   4. SwiftLint check
   5. Code coverage report
-
-Merge to main:
-  1. All PR checks
-  2. Build Release archive
-  3. Upload to TestFlight (via fastlane or xcodebuild)
-
-Tag (v*):
-  1. Build Release archive
-  2. Upload to App Store Connect
-  3. Submit for review (manual trigger)
-```
-
-### Fastlane (Optional)
-
-```
-lanes:
-  test        → run all tests + coverage
-  beta        → build + upload to TestFlight
-  release     → build + upload to App Store
-  screenshots → capture screenshots for all device sizes
 ```
 
 ---
