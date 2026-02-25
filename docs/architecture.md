@@ -34,8 +34,8 @@ The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** desi
 ├─────────────────────────────────────────────────────┤
 │                  Infrastructure                      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
-│  │ Keychain │  │ Firebase │  │ AWS S3 Upload    │  │
-│  │          │  │   FCM    │  │                  │  │
+│  │ Keychain │  │ Push     │  │ AWS S3 Upload    │  │
+│  │          │  │ (mock)   │  │                  │  │
 │  └──────────┘  └──────────┘  └──────────────────┘  │
 └─────────────────────────────────────────────────────┘
 ```
@@ -59,7 +59,7 @@ The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** desi
 
 #### Infrastructure Layer
 - **Keychain**: Secure token storage (access token, refresh token, ID token). Uses native Keychain Services API.
-- **Firebase**: Push notification registration and handling (FCM).
+- **Push Notifications**: Mock service for now. Firebase FCM integration deferred until Firebase project is set up.
 - **S3 Upload**: Direct presigned URL upload for report files.
 
 ---

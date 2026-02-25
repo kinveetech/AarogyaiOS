@@ -197,8 +197,9 @@ AarogyaiOS/
 │   │   ├── Keychain/
 │   │   │   ├── KeychainService.swift      # Generic Keychain CRUD
 │   │   │   └── TokenStore.swift           # Typed access/refresh/ID token storage
-│   │   ├── Firebase/
-│   │   │   └── PushNotificationService.swift
+│   │   ├── Push/
+│   │   │   ├── PushNotificationService.swift  # Protocol
+│   │   │   └── MockPushService.swift          # Mock impl (Firebase deferred)
 │   │   ├── S3/
 │   │   │   └── S3UploadService.swift      # Presigned URL upload with progress
 │   │   └── PKCE/
@@ -216,7 +217,7 @@ AarogyaiOS/
 │   │   ├── Assets.xcassets/               # App icons, colors, images
 │   │   ├── Localizable.xcstrings          # Localization strings
 │   │   ├── Info.plist
-│   │   └── GoogleService-Info.plist       # Firebase config
+│   │   └── GoogleService-Info.plist       # Firebase config (not yet added)
 │   │
 │   └── Preview Content/
 │       └── PreviewData.swift              # Mock data for SwiftUI previews
@@ -259,7 +260,7 @@ Defined in the Xcode project's Package Dependencies section:
 
 | Package | Use | Version |
 |---------|-----|---------|
-| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | Push notifications (FCM) + Crashlytics | ~> 11.0 |
+| ~~[Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk)~~ | Push notifications (FCM) + Crashlytics | **Deferred** — mock service for now |
 | [SwiftLint](https://github.com/realm/SwiftLint) | Code linting (build plugin) | ~> 0.57 |
 | [Nuke](https://github.com/kean/Nuke) | Async image loading + caching | ~> 12.0 |
 

@@ -455,7 +455,7 @@ Each with description text and toggle switch.
 
 **Behavior**:
 - Changes: `PUT /v1/notifications/preferences`
-- Push toggle also manages FCM token registration
+- Push toggle also manages device token registration (mock service until Firebase is set up)
 
 ---
 

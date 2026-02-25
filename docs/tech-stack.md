@@ -57,12 +57,14 @@
 | **CryptoKit** | SHA256 for PKCE challenges + file checksum verification |
 | **App Transport Security** | TLS enforcement (system-level) |
 
-### Push Notifications
+### Push Notifications (Deferred — Mock for Now)
 
-| Technology | Purpose |
-|------------|---------|
-| **Firebase Cloud Messaging (FCM)** | Push notification delivery |
-| **UserNotifications** | Local notification scheduling + handling |
+| Technology | Purpose | Status |
+|------------|---------|--------|
+| **Firebase Cloud Messaging (FCM)** | Push notification delivery | **Deferred** — Firebase project not set up yet |
+| **UserNotifications** | Local notification scheduling + handling | Available |
+
+Push notifications use a mock `PushNotificationService` protocol. The real Firebase implementation will be swapped in once the Firebase project is configured.
 
 ### Concurrency
 
@@ -90,7 +92,7 @@ Minimal dependencies — prefer Apple frameworks. Only add packages when they pr
 
 | Package | Version | Purpose | Justification |
 |---------|---------|---------|---------------|
-| [Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk) | ~> 11.0 | FCM push notifications + Crashlytics | Required for push delivery infrastructure |
+| ~~[Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk)~~ | ~> 11.0 | FCM push notifications + Crashlytics | **Deferred** — mock service used until Firebase is set up |
 | [SwiftLint](https://github.com/realm/SwiftLint) | ~> 0.57 | Code linting | Consistent code style across team |
 | [Nuke](https://github.com/kean/Nuke) | ~> 12.0 | Image loading + caching | Efficient async image pipeline for report thumbnails |
 
@@ -194,13 +196,13 @@ All user-facing strings use `String(localized:)` or `LocalizedStringKey` in Swif
 
 ## Analytics & Monitoring
 
-### Crash Reporting
-- Firebase Crashlytics (included with Firebase SDK)
+### Crash Reporting (Deferred)
+- Firebase Crashlytics planned — deferred until Firebase project is set up
 - Strip PII from crash reports
 - dSYM upload in CI pipeline
 
-### Analytics (Post-Launch)
-- Firebase Analytics (basic usage patterns)
+### Analytics (Post-Launch, Deferred)
+- Firebase Analytics planned — deferred until Firebase project is set up
 - No PII in analytics events
 - User consent required before tracking (DPDPA compliance)
 

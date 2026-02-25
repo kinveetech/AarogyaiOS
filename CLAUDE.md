@@ -33,7 +33,7 @@ AarogyaiOS/
 ├── Domain/           # Models, repository protocols, use cases
 ├── Data/             # Network (APIClient, DTOs), local (SwiftData), repository impls
 ├── Presentation/     # Views, ViewModels, navigation, shared components
-├── Infrastructure/   # Keychain, Firebase, S3 upload, PKCE
+├── Infrastructure/   # Keychain, Push (mock), S3 upload, PKCE
 ├── Utilities/        # Extensions, constants, logger
 └── Resources/        # Assets, localization, Info.plist
 ```
@@ -122,11 +122,11 @@ See `docs/api-and-networking.md` for endpoint catalog and auth flow.
 
 | Package | Purpose |
 |---------|---------|
-| Firebase iOS SDK | Push notifications (FCM) + Crashlytics |
+| ~~Firebase iOS SDK~~ | Push notifications — **deferred**, using mock service for now |
 | SwiftLint | Code linting (build plugin) |
 | Nuke | Async image loading |
 
-No KeychainAccess (native API sufficient at iOS 26), no Alamofire, no Combine, no RxSwift, no Realm.
+No KeychainAccess (native API sufficient at iOS 26), no Firebase (deferred — mock push service for now), no Alamofire, no Combine, no RxSwift, no Realm.
 
 ---
 
