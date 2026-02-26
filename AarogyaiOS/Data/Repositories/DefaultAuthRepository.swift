@@ -41,11 +41,11 @@ struct DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens {
+    func socialToken(provider: String, code: String, codeVerifier: String) async throws -> AuthTokens {
         let request = SocialTokenRequest(
+            provider: provider,
             code: code,
             codeVerifier: codeVerifier,
-            state: "",
             redirectUri: "aarogya://auth/callback"
         )
         let response: TokenResponse = try await apiClient.request(.socialToken, body: request)

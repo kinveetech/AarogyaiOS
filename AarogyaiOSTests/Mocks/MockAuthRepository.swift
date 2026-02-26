@@ -29,7 +29,7 @@ final class MockAuthRepository: AuthRepository, @unchecked Sendable {
         return try socialAuthorizeResult.get()
     }
 
-    func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens {
+    func socialToken(provider: String, code: String, codeVerifier: String) async throws -> AuthTokens {
         socialTokenCallCount += 1
         return try socialTokenResult.get()
     }
