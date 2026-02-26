@@ -14,20 +14,12 @@ struct SocialLoginButton: View {
             case .google: "Continue with Google"
             }
         }
-
-        var icon: String {
-            switch self {
-            case .apple: "apple.logo"
-            case .google: "globe"
-            }
-        }
     }
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: provider.icon)
-                    .font(.title3)
+                providerIcon
                 Text(provider.label)
                     .font(Typography.headline)
             }
@@ -35,6 +27,17 @@ struct SocialLoginButton: View {
             .padding(.vertical, 14)
         }
         .buttonStyle(.glass)
+    }
+
+    @ViewBuilder
+    private var providerIcon: some View {
+        switch provider {
+        case .apple:
+            Image(systemName: "apple.logo")
+                .font(.title3)
+        case .google:
+            GoogleLogo(size: 20)
+        }
     }
 }
 

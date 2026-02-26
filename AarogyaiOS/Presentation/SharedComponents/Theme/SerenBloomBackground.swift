@@ -5,18 +5,28 @@ struct SereneBloomBackground: View {
 
     var body: some View {
         LinearGradient(
-            colors: gradientColors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            stops: gradientStops,
+            startPoint: UnitPoint(x: 0.25, y: 0),
+            endPoint: UnitPoint(x: 0.75, y: 1)
         )
         .ignoresSafeArea()
     }
 
-    private var gradientColors: [Color] {
+    private var gradientStops: [Gradient.Stop] {
         if colorScheme == .dark {
-            [Color(hex: 0x0C1917), Color(hex: 0x132624)]
+            [
+                .init(color: Color(hex: 0x0B1A1A), location: 0.0),
+                .init(color: Color(hex: 0x0F2020), location: 0.4),
+                .init(color: Color(hex: 0x112626), location: 0.7),
+                .init(color: Color(hex: 0x142B2B), location: 1.0)
+            ]
         } else {
-            [Color(hex: 0xFBF9F0), Color(hex: 0xE8F0E8)]
+            [
+                .init(color: Color(hex: 0xFFF8F0), location: 0.0),
+                .init(color: Color(hex: 0xF0FAF0), location: 0.4),
+                .init(color: Color(hex: 0xE0F5F0), location: 0.7),
+                .init(color: Color(hex: 0xD5F0EA), location: 1.0)
+            ]
         }
     }
 }

@@ -8,21 +8,21 @@ Tracks all visual assets needed for the app. Items marked with SF Symbol fallbac
 
 | Asset | Size | Status | Notes |
 |-------|------|--------|-------|
-| App icon | 1024x1024 (single size, Xcode generates all variants) | Pending | Required for TestFlight/App Store. Use placeholder during dev. |
+| App icon | 1024x1024 (single size, Xcode generates all variants) | Done | Shield Tree on teal gradient background, matches frontend PWA icon |
 
 ---
 
 ## Fonts (Bundle in App)
 
-Download from [Google Fonts](https://fonts.google.com/) and add to `Resources/Fonts/`.
+Downloaded from [Google Fonts](https://fonts.google.com/) and added to `Resources/Fonts/`.
 
 | Font | Files Needed | Status | Use |
 |------|-------------|--------|-----|
-| DM Serif Display | Regular `.ttf` | Pending | Headings (largeTitle, title, title2) |
-| Outfit | Regular, Medium, SemiBold `.ttf` | Pending | Body text (body, callout, headline, etc.) |
-| DM Mono | Medium `.ttf` | Pending | Data values, report parameters |
+| DM Serif Display | Regular, Italic `.ttf` | Done | Headings (largeTitle, title, title2) |
+| Outfit | Variable weight `.ttf` | Done | Body text (body, callout, headline, etc.) — single variable font covers all weights |
+| DM Mono | Regular, Medium `.ttf` | Done | Data values, report parameters |
 
-Register in `Info.plist` under `UIAppFonts` (or via Xcode's font asset catalog).
+Registered in `Info.plist` under `UIAppFonts`.
 
 ---
 
@@ -30,9 +30,10 @@ Register in `Info.plist` under `UIAppFonts` (or via Xcode's font asset catalog).
 
 | Asset | Format | Status | Where Used |
 |-------|--------|--------|------------|
-| App logo (horizontal) | SVG / PDF | Pending | Login screen header |
-| App logo (mark only) | SVG / PDF | Pending | Splash/launch screen |
-| Tagline text | N/A | Pending | "Your health records, simplified" — text, no asset needed |
+| Shield Tree Logo (with wordmark) | SwiftUI `Canvas` view | Done | Login screen header — `ShieldTreeLogo.swift` |
+| Shield Tree Logo (mark only) | SwiftUI `Canvas` view | Done | Launch screen — `ShieldTreeLogo(showWordmark: false)` |
+| Google Logo (4-color G) | SwiftUI `Canvas` view | Done | Social login button — `GoogleLogo.swift` |
+| Tagline text | N/A | Done | "Your Health, Our Priority" — matches frontend wordmark |
 
 ---
 
@@ -55,26 +56,26 @@ All can use SF Symbols as v1 fallback — no custom artwork required to ship.
 
 ## Color Assets (Assets.xcassets)
 
-Define as Color Sets with light/dark variants. See `design-system.md` for full palette.
+Defined as Color Sets with light/dark variants. Aligned with frontend Serene Bloom tokens from `AarogyaFrontend/src/theme/tokens.ts`.
 
 | Color Set | Light | Dark | Status |
 |-----------|-------|------|--------|
-| `brand/primary` | #0D9488 | #2DD4BF | Pending |
-| `brand/primaryLight` | #5EEAD4 | #0F766E | Pending |
-| `brand/secondary` | #84CC16 | #A3E635 | Pending |
-| `brand/accent` | #F59E0B | #FBBF24 | Pending |
-| `bg/primary` | #FAFAF5 | #0C1917 | Pending |
-| `bg/secondary` | #F0F4F0 | #132624 | Pending |
-| `bg/gradientStart` | #FBF9F0 | #0C1917 | Pending |
-| `bg/gradientEnd` | #E8F0E8 | #132624 | Pending |
-| `text/primary` | #1A1A1A | #F5F5F5 | Pending |
-| `text/secondary` | #6B7280 | #9CA3AF | Pending |
-| `text/tertiary` | #9CA3AF | #6B7280 | Pending |
-| `status/normal` | #22C55E | #4ADE80 | Pending |
-| `status/warning` | #F59E0B | #FBBF24 | Pending |
-| `status/critical` | #EF4444 | #F87171 | Pending |
-| `status/info` | #3B82F6 | #60A5FA | Pending |
-| `border/default` | #E5E7EB | #374151 | Pending |
+| `BrandTeal` | #0E6B66 (brand.500) | #1A9E97 (brand.400) | Done |
+| `BrandPrimaryLight` | #1A9E97 (brand.400) | #4FB4B0 (brand.300) | Done |
+| `BrandSage` | #7FB285 (sage.400) | #9DC5A1 (sage.300) | Done |
+| `BrandAmber` | #FFB347 (amber.300) | #FFD693 (amber.200) | Done |
+| `BackgroundPrimary` | #FFF8F0 (bg.canvas) | #0B1A1A (bg.canvas dark) | Done |
+| `BackgroundSecondary` | #F0FAF0 (bg.surface) | #112626 (bg.surface dark) | Done |
+| `BackgroundGradientStart` | #FFF8F0 | #0B1A1A | Done |
+| `BackgroundGradientEnd` | #D5F0EA | #142B2B | Done |
+| `TextPrimary` | #0A4D4A (brand.600) | #E8F5F0 | Done |
+| `TextSecondary` | #4A6E4D (sage.600) | #7FB285 (sage.400) | Done |
+| `TextTertiary` | #7FA8A6 (neutral.400) | #5A8C8A (neutral.500) | Done |
+| `StatusNormal` | #4A6E4D (sage.600) | #9DC5A1 (sage.300) | Done |
+| `StatusWarning` | #C27A08 (amber.500) | #FFB347 (amber.300) | Done |
+| `StatusCritical` | #CC2B2B (coral.600) | #FF8A8A (coral.300) | Done |
+| `StatusInfo` | #0E6B66 (brand.500) | #1A9E97 (brand.400) | Done |
+| `BorderDefault` | #C8DCDB (neutral.200) | #2A4A48 (neutral.700) | Done |
 
 ---
 
@@ -82,7 +83,7 @@ Define as Color Sets with light/dark variants. See `design-system.md` for full p
 
 | Asset | Status | Notes |
 |-------|--------|-------|
-| Launch screen storyboard or SwiftUI | Pending | Solid `bg.primary` color with centered app logo mark. Keep minimal for fast launch. |
+| Launch screen (SwiftUI) | Done | Serene Bloom gradient background with centered Shield Tree logo mark |
 
 ---
 
@@ -90,12 +91,11 @@ Define as Color Sets with light/dark variants. See `design-system.md` for full p
 
 | Category | Total Items | Ready | Pending |
 |----------|-------------|-------|---------|
-| App Icon | 1 | 0 | 1 |
-| Fonts | 3 families (5 files) | 0 | 5 |
-| Brand Assets | 2 | 0 | 2 |
+| App Icon | 1 | 1 | 0 |
+| Fonts | 3 families (5 files) | 5 | 0 |
+| Brand Assets | 3 (logo, mark, Google icon) | 3 | 0 |
 | Empty States | 8 | 8 (SF Symbol fallback) | 0 (custom: 8 deferred) |
-| Color Assets | 16 color sets | 0 | 16 |
-| Launch Screen | 1 | 0 | 1 |
+| Color Assets | 16 color sets | 16 | 0 |
+| Launch Screen | 1 | 1 | 0 |
 
-**v1 blocker**: App icon (placeholder OK for dev), fonts, color assets, launch screen.
-**Not blocking v1**: Custom illustrations (SF Symbols are sufficient), brand logo (text fallback OK for dev).
+**All v1 assets are ready.** Custom illustrations for empty states are deferred (SF Symbols sufficient).

@@ -49,25 +49,25 @@ extension Color {
 
 extension Color {
     enum Fallback {
-        static let brandPrimary = Color(hex: 0x0D9488)
-        static let brandPrimaryLight = Color(hex: 0x5EEAD4)
-        static let brandSecondary = Color(hex: 0x84CC16)
-        static let brandAccent = Color(hex: 0xF59E0B)
+        static let brandPrimary = Color(hex: 0x0E6B66)
+        static let brandPrimaryLight = Color(hex: 0x1A9E97)
+        static let brandSecondary = Color(hex: 0x7FB285)
+        static let brandAccent = Color(hex: 0xFFB347)
 
-        static let bgPrimary = Color(hex: 0xFAFAF5)
-        static let bgSecondary = Color(hex: 0xF0F4F0)
-        static let bgGradientStart = Color(hex: 0xFBF9F0)
-        static let bgGradientEnd = Color(hex: 0xE8F0E8)
+        static let bgPrimary = Color(hex: 0xFFF8F0)
+        static let bgSecondary = Color(hex: 0xF0FAF0)
+        static let bgGradientStart = Color(hex: 0xFFF8F0)
+        static let bgGradientEnd = Color(hex: 0xD5F0EA)
 
-        static let textPrimary = Color(hex: 0x1A1A1A)
-        static let textSecondary = Color(hex: 0x6B7280)
-        static let textTertiary = Color(hex: 0x9CA3AF)
+        static let textPrimary = Color(hex: 0x0A4D4A)
+        static let textSecondary = Color(hex: 0x4A6E4D)
+        static let textTertiary = Color(hex: 0x7FA8A6)
 
-        static let statusNormal = Color(hex: 0x22C55E)
-        static let statusWarning = Color(hex: 0xF59E0B)
-        static let statusCritical = Color(hex: 0xEF4444)
-        static let statusInfo = Color(hex: 0x3B82F6)
+        static let statusNormal = Color(hex: 0x4A6E4D)
+        static let statusWarning = Color(hex: 0xC27A08)
+        static let statusCritical = Color(hex: 0xCC2B2B)
+        static let statusInfo = Color(hex: 0x0E6B66)
 
-        static let borderDefault = Color(hex: 0xE5E7EB)
+        static let borderDefault = Color(hex: 0xC8DCDB)
     }
 }

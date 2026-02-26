@@ -26,9 +26,7 @@ struct RootView: View {
         Group {
             switch coordinator.state {
             case .loading:
-                ProgressView("Loading…")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .sereneBloomBackground()
+                LaunchScreen()
             case .unauthenticated:
                 LoginView(viewModel: LoginViewModel(
                     loginUseCase: container.loginUseCase,
