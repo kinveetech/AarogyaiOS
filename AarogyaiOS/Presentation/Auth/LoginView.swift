@@ -2,25 +2,59 @@ import SwiftUI
 
 struct LoginView: View {
     @State var viewModel: LoginViewModel
+    @State private var showBranding = false
+    @State private var showSocialButtons = false
+    @State private var showDivider = false
+    @State private var showPhoneSection = false
+    @State private var showFooter = false
 
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
             branding
+                .opacity(showBranding ? 1 : 0)
+                .scaleEffect(showBranding ? 1 : 0.8)
 
             socialLoginButtons
+                .opacity(showSocialButtons ? 1 : 0)
+                .offset(y: showSocialButtons ? 0 : 24)
 
             divider
+                .opacity(showDivider ? 1 : 0)
 
             phoneLoginSection
+                .opacity(showPhoneSection ? 1 : 0)
+                .offset(y: showPhoneSection ? 0 : 20)
 
             Spacer()
 
             termsFooter
+                .opacity(showFooter ? 1 : 0)
         }
         .padding(24)
         .sereneBloomBackground()
+        .task {
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
+                showBranding = true
+            }
+            try? await Task.sleep(for: .milliseconds(200))
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                showSocialButtons = true
+            }
+            try? await Task.sleep(for: .milliseconds(150))
+            withAnimation(.easeOut(duration: 0.4)) {
+                showDivider = true
+            }
+            try? await Task.sleep(for: .milliseconds(150))
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                showPhoneSection = true
+            }
+            try? await Task.sleep(for: .milliseconds(200))
+            withAnimation(.easeOut(duration: 0.5)) {
+                showFooter = true
+            }
+        }
     }
 
     // MARK: - Branding
@@ -63,8 +97,16 @@ struct LoginView: View {
         VStack(spacing: 16) {
             if viewModel.otpSent {
                 otpInput
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
             } else {
                 phoneInput
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .leading).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
             }
 
             if let error = viewModel.error {
@@ -72,8 +114,11 @@ struct LoginView: View {
                     .font(Typography.caption)
                     .foregroundStyle(Color.Fallback.statusCritical)
                     .multilineTextAlignment(.center)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
         }
+        .animation(.spring(response: 0.5, dampingFraction: 0.85), value: viewModel.otpSent)
+        .animation(.easeOut(duration: 0.3), value: viewModel.error)
     }
 
     private var phoneInput: some View {
