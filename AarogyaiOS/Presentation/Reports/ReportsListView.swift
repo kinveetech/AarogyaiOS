@@ -11,6 +11,7 @@ struct ReportsListView: View {
             GlassFAB(icon: "plus") {
                 showUpload = true
             }
+            .accessibilityIdentifier(AccessibilityID.Reports.fab)
             .padding(24)
         }
         .navigationTitle("Reports")

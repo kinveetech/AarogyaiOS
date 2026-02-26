@@ -9,12 +9,15 @@ struct SettingsView: View {
                 NavigationLink(value: SettingsRoute.profile) {
                     Label("Profile", systemImage: "person")
                 }
+                .accessibilityIdentifier(AccessibilityID.Settings.profileRow)
                 NavigationLink(value: SettingsRoute.consents) {
                     Label("Privacy & Consents", systemImage: "hand.raised")
                 }
+                .accessibilityIdentifier(AccessibilityID.Settings.consentsRow)
                 NavigationLink(value: SettingsRoute.notifications) {
                     Label("Notifications", systemImage: "bell")
                 }
+                .accessibilityIdentifier(AccessibilityID.Settings.notificationsRow)
             }
 
             Section("Data") {
@@ -32,12 +35,14 @@ struct SettingsView: View {
                 } label: {
                     Label("Delete Account", systemImage: "trash")
                 }
+                .accessibilityIdentifier(AccessibilityID.Settings.deleteAccountButton)
             }
 
             Section {
                 Button("Sign Out", role: .destructive) {
                     Task { await viewModel.signOut() }
                 }
+                .accessibilityIdentifier(AccessibilityID.Settings.signOutButton)
             }
 
             Section {

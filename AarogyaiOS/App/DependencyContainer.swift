@@ -7,7 +7,7 @@ final class DependencyContainer {
 
     let networkMonitor: NetworkMonitor
     let keychainService: KeychainService
-    let tokenStore: TokenStore
+    let tokenStore: any TokenStoring
     let s3UploadService: S3UploadService
     let pushService: any PushNotificationService
 
@@ -64,18 +64,13 @@ final class DependencyContainer {
     let manageConsentsUseCase: ManageConsentsUseCase
     let manageNotificationsUseCase: ManageNotificationsUseCase
 
+    // swiftlint:disable function_body_length
     init() {
-        // Infrastructure
         networkMonitor = NetworkMonitor()
         networkMonitor.start()
-
         keychainService = KeychainService(service: Constants.Keychain.serviceName)
-        tokenStore = TokenStore(keychain: keychainService)
-
-        s3UploadService = S3UploadService()
         pushService = MockPushService()
 
-        // Persistence
         do {
             modelContainer = try LocalDataSource.makeContainer()
         } catch {
@@ -83,60 +78,266 @@ final class DependencyContainer {
         }
         localDataSource = LocalDataSource(modelContainer: modelContainer)
 
-        // Networking
-        let tokenStoreRef: any TokenStoring = tokenStore
-        authInterceptor = AuthInterceptor(
-            tokenStore: tokenStoreRef,
+        if UITestingMode.isUITesting {
+            let deps = Self.makeStubDependencies()
+            tokenStore = deps.tokenStore
+            s3UploadService = S3UploadService()
+            authInterceptor = deps.interceptor
+            apiClient = deps.client
+            authRepository = deps.auth
+            userRepository = deps.user
+            reportRepository = deps.report
+            accessGrantRepository = deps.accessGrant
+            emergencyContactRepository = deps.emergency
+            consentRepository = deps.consent
+            notificationRepository = deps.notification
+            loginUseCase = deps.login
+            logoutUseCase = deps.logout
+            refreshTokenUseCase = deps.refresh
+            registerUserUseCase = deps.register
+            getCurrentUserUseCase = deps.getCurrentUser
+            updateProfileUseCase = deps.updateProfile
+            checkRegistrationStatusUseCase = deps.checkStatus
+            verifyAadhaarUseCase = deps.verifyAadhaar
+            exportDataUseCase = deps.exportData
+            requestAccountDeletionUseCase = deps.deleteAccount
+            fetchReportsUseCase = deps.fetchReports
+            uploadReportUseCase = deps.uploadReport
+            deleteReportUseCase = deps.deleteReport
+            downloadReportUseCase = deps.downloadReport
+            fetchAccessGrantsUseCase = deps.fetchGrants
+            createAccessGrantUseCase = deps.createGrant
+            revokeAccessGrantUseCase = deps.revokeGrant
+            fetchEmergencyContactsUseCase = deps.fetchContacts
+            manageEmergencyContactUseCase = deps.manageContact
+            manageConsentsUseCase = deps.manageConsents
+            manageNotificationsUseCase = deps.manageNotifications
+        } else {
+            let deps = Self.makeProductionDependencies(
+                keychainService: keychainService
+            )
+            tokenStore = deps.tokenStore
+            s3UploadService = S3UploadService()
+            authInterceptor = deps.interceptor
+            apiClient = deps.client
+            authRepository = deps.auth
+            userRepository = deps.user
+            reportRepository = deps.report
+            accessGrantRepository = deps.accessGrant
+            emergencyContactRepository = deps.emergency
+            consentRepository = deps.consent
+            notificationRepository = deps.notification
+            loginUseCase = deps.login
+            logoutUseCase = deps.logout
+            refreshTokenUseCase = deps.refresh
+            registerUserUseCase = deps.register
+            getCurrentUserUseCase = deps.getCurrentUser
+            updateProfileUseCase = deps.updateProfile
+            checkRegistrationStatusUseCase = deps.checkStatus
+            verifyAadhaarUseCase = deps.verifyAadhaar
+            exportDataUseCase = deps.exportData
+            requestAccountDeletionUseCase = deps.deleteAccount
+            fetchReportsUseCase = deps.fetchReports
+            uploadReportUseCase = deps.uploadReport
+            deleteReportUseCase = deps.deleteReport
+            downloadReportUseCase = deps.downloadReport
+            fetchAccessGrantsUseCase = deps.fetchGrants
+            createAccessGrantUseCase = deps.createGrant
+            revokeAccessGrantUseCase = deps.revokeGrant
+            fetchEmergencyContactsUseCase = deps.fetchContacts
+            manageEmergencyContactUseCase = deps.manageContact
+            manageConsentsUseCase = deps.manageConsents
+            manageNotificationsUseCase = deps.manageNotifications
+        }
+    }
+    // swiftlint:enable function_body_length
+}
+
+// MARK: - Dependency Bundle
+
+private struct DependencyBundle {
+    let tokenStore: any TokenStoring
+    let interceptor: AuthInterceptor
+    let client: APIClient
+    let auth: any AuthRepository
+    let user: any UserRepository
+    let report: any ReportRepository
+    let accessGrant: any AccessGrantRepository
+    let emergency: any EmergencyContactRepository
+    let consent: any ConsentRepository
+    let notification: any NotificationRepository
+    let login: LoginUseCase
+    let logout: LogoutUseCase
+    let refresh: RefreshTokenUseCase
+    let register: RegisterUserUseCase
+    let getCurrentUser: GetCurrentUserUseCase
+    let updateProfile: UpdateProfileUseCase
+    let checkStatus: CheckRegistrationStatusUseCase
+    let verifyAadhaar: VerifyAadhaarUseCase
+    let exportData: ExportDataUseCase
+    let deleteAccount: RequestAccountDeletionUseCase
+    let fetchReports: FetchReportsUseCase
+    let uploadReport: UploadReportUseCase
+    let deleteReport: DeleteReportUseCase
+    let downloadReport: DownloadReportUseCase
+    let fetchGrants: FetchAccessGrantsUseCase
+    let createGrant: CreateAccessGrantUseCase
+    let revokeGrant: RevokeAccessGrantUseCase
+    let fetchContacts: FetchEmergencyContactsUseCase
+    let manageContact: ManageEmergencyContactUseCase
+    let manageConsents: ManageConsentsUseCase
+    let manageNotifications: ManageNotificationsUseCase
+}
+
+// MARK: - Factory Methods
+
+extension DependencyContainer {
+    private static func makeStubDependencies() -> DependencyBundle {
+        let store = StubTokenStore(preloaded: !UITestingMode.isLoginFlow)
+        let authRepo = StubAuthRepository(tokenStore: store)
+        let userRepo = StubUserRepository(tokenStore: store)
+        let reportRepo = StubReportRepository()
+        let grantRepo = StubAccessGrantRepository()
+        let emergencyRepo = StubEmergencyContactRepository()
+        let consentRepo = StubConsentRepository()
+        let notifRepo = StubNotificationRepository()
+
+        let interceptor = AuthInterceptor(tokenStore: store, refreshToken: {
+            AuthTokens(
+                accessToken: "stub", refreshToken: "stub",
+                idToken: "stub", expiresIn: 3600
+            )
+        })
+        let client = APIClient(
+            baseURL: Constants.API.baseURL,
+            interceptor: interceptor
+        )
+
+        return DependencyBundle(
+            tokenStore: store,
+            interceptor: interceptor,
+            client: client,
+            auth: authRepo, user: userRepo,
+            report: reportRepo, accessGrant: grantRepo,
+            emergency: emergencyRepo, consent: consentRepo,
+            notification: notifRepo,
+            login: LoginUseCase(authRepository: authRepo, tokenStore: store),
+            logout: LogoutUseCase(authRepository: authRepo, tokenStore: store),
+            refresh: RefreshTokenUseCase(authRepository: authRepo, tokenStore: store),
+            register: RegisterUserUseCase(userRepository: userRepo),
+            getCurrentUser: GetCurrentUserUseCase(userRepository: userRepo),
+            updateProfile: UpdateProfileUseCase(userRepository: userRepo),
+            checkStatus: CheckRegistrationStatusUseCase(userRepository: userRepo),
+            verifyAadhaar: VerifyAadhaarUseCase(userRepository: userRepo),
+            exportData: ExportDataUseCase(userRepository: userRepo),
+            deleteAccount: RequestAccountDeletionUseCase(userRepository: userRepo),
+            fetchReports: FetchReportsUseCase(reportRepository: reportRepo),
+            uploadReport: UploadReportUseCase(
+                reportRepository: reportRepo, uploadService: StubFileUploader()
+            ),
+            deleteReport: DeleteReportUseCase(reportRepository: reportRepo),
+            downloadReport: DownloadReportUseCase(reportRepository: reportRepo),
+            fetchGrants: FetchAccessGrantsUseCase(accessGrantRepository: grantRepo),
+            createGrant: CreateAccessGrantUseCase(accessGrantRepository: grantRepo),
+            revokeGrant: RevokeAccessGrantUseCase(accessGrantRepository: grantRepo),
+            fetchContacts: FetchEmergencyContactsUseCase(
+                emergencyContactRepository: emergencyRepo
+            ),
+            manageContact: ManageEmergencyContactUseCase(
+                emergencyContactRepository: emergencyRepo
+            ),
+            manageConsents: ManageConsentsUseCase(consentRepository: consentRepo),
+            manageNotifications: ManageNotificationsUseCase(
+                notificationRepository: notifRepo
+            )
+        )
+    }
+
+    private static func makeProductionDependencies(
+        keychainService: KeychainService
+    ) -> DependencyBundle {
+        let store = TokenStore(keychain: keychainService)
+        let tokenRef: any TokenStoring = store
+
+        let interceptor = AuthInterceptor(
+            tokenStore: tokenRef,
             refreshToken: {
                 let refreshClient = APIClient(baseURL: Constants.API.baseURL)
-                let repo = DefaultAuthRepository(apiClient: refreshClient, tokenStore: tokenStoreRef)
-                let currentRefreshToken = try await tokenStoreRef.refreshToken()
-                return try await repo.refreshToken(refreshToken: currentRefreshToken)
+                let repo = DefaultAuthRepository(
+                    apiClient: refreshClient, tokenStore: tokenRef
+                )
+                let token = try await tokenRef.refreshToken()
+                return try await repo.refreshToken(refreshToken: token)
             }
         )
-        apiClient = APIClient(
-            baseURL: Constants.API.baseURL,
-            interceptor: authInterceptor
+        let client = APIClient(
+            baseURL: Constants.API.baseURL, interceptor: interceptor
         )
 
-        // Repositories
-        authRepository = DefaultAuthRepository(apiClient: apiClient, tokenStore: tokenStore)
-        userRepository = DefaultUserRepository(apiClient: apiClient)
-        reportRepository = DefaultReportRepository(apiClient: apiClient)
-        accessGrantRepository = DefaultAccessGrantRepository(apiClient: apiClient)
-        emergencyContactRepository = DefaultEmergencyContactRepository(apiClient: apiClient)
-        consentRepository = DefaultConsentRepository(apiClient: apiClient)
-        notificationRepository = DefaultNotificationRepository(apiClient: apiClient)
+        let authRepo = DefaultAuthRepository(
+            apiClient: client, tokenStore: store
+        )
+        let userRepo = DefaultUserRepository(apiClient: client)
+        let reportRepo = DefaultReportRepository(apiClient: client)
+        let grantRepo = DefaultAccessGrantRepository(apiClient: client)
+        let emergencyRepo = DefaultEmergencyContactRepository(apiClient: client)
+        let consentRepo = DefaultConsentRepository(apiClient: client)
+        let notifRepo = DefaultNotificationRepository(apiClient: client)
 
-        // Use Cases — Auth
-        loginUseCase = LoginUseCase(authRepository: authRepository, tokenStore: tokenStore)
-        logoutUseCase = LogoutUseCase(authRepository: authRepository, tokenStore: tokenStore)
-        refreshTokenUseCase = RefreshTokenUseCase(authRepository: authRepository, tokenStore: tokenStore)
-        registerUserUseCase = RegisterUserUseCase(userRepository: userRepository)
-        getCurrentUserUseCase = GetCurrentUserUseCase(userRepository: userRepository)
-        updateProfileUseCase = UpdateProfileUseCase(userRepository: userRepository)
-        checkRegistrationStatusUseCase = CheckRegistrationStatusUseCase(userRepository: userRepository)
-        verifyAadhaarUseCase = VerifyAadhaarUseCase(userRepository: userRepository)
-        exportDataUseCase = ExportDataUseCase(userRepository: userRepository)
-        requestAccountDeletionUseCase = RequestAccountDeletionUseCase(userRepository: userRepository)
-
-        // Use Cases — Reports
-        fetchReportsUseCase = FetchReportsUseCase(reportRepository: reportRepository)
-        uploadReportUseCase = UploadReportUseCase(reportRepository: reportRepository, uploadService: s3UploadService)
-        deleteReportUseCase = DeleteReportUseCase(reportRepository: reportRepository)
-        downloadReportUseCase = DownloadReportUseCase(reportRepository: reportRepository)
-
-        // Use Cases — Access Grants
-        fetchAccessGrantsUseCase = FetchAccessGrantsUseCase(accessGrantRepository: accessGrantRepository)
-        createAccessGrantUseCase = CreateAccessGrantUseCase(accessGrantRepository: accessGrantRepository)
-        revokeAccessGrantUseCase = RevokeAccessGrantUseCase(accessGrantRepository: accessGrantRepository)
-
-        // Use Cases — Emergency Contacts
-        fetchEmergencyContactsUseCase = FetchEmergencyContactsUseCase(emergencyContactRepository: emergencyContactRepository)
-        manageEmergencyContactUseCase = ManageEmergencyContactUseCase(emergencyContactRepository: emergencyContactRepository)
-
-        // Use Cases — Consents & Notifications
-        manageConsentsUseCase = ManageConsentsUseCase(consentRepository: consentRepository)
-        manageNotificationsUseCase = ManageNotificationsUseCase(notificationRepository: notificationRepository)
+        return DependencyBundle(
+            tokenStore: store,
+            interceptor: interceptor,
+            client: client,
+            auth: authRepo, user: userRepo,
+            report: reportRepo, accessGrant: grantRepo,
+            emergency: emergencyRepo, consent: consentRepo,
+            notification: notifRepo,
+            login: LoginUseCase(authRepository: authRepo, tokenStore: store),
+            logout: LogoutUseCase(authRepository: authRepo, tokenStore: store),
+            refresh: RefreshTokenUseCase(
+                authRepository: authRepo, tokenStore: store
+            ),
+            register: RegisterUserUseCase(userRepository: userRepo),
+            getCurrentUser: GetCurrentUserUseCase(userRepository: userRepo),
+            updateProfile: UpdateProfileUseCase(userRepository: userRepo),
+            checkStatus: CheckRegistrationStatusUseCase(
+                userRepository: userRepo
+            ),
+            verifyAadhaar: VerifyAadhaarUseCase(userRepository: userRepo),
+            exportData: ExportDataUseCase(userRepository: userRepo),
+            deleteAccount: RequestAccountDeletionUseCase(
+                userRepository: userRepo
+            ),
+            fetchReports: FetchReportsUseCase(reportRepository: reportRepo),
+            uploadReport: UploadReportUseCase(
+                reportRepository: reportRepo,
+                uploadService: S3UploadService()
+            ),
+            deleteReport: DeleteReportUseCase(reportRepository: reportRepo),
+            downloadReport: DownloadReportUseCase(
+                reportRepository: reportRepo
+            ),
+            fetchGrants: FetchAccessGrantsUseCase(
+                accessGrantRepository: grantRepo
+            ),
+            createGrant: CreateAccessGrantUseCase(
+                accessGrantRepository: grantRepo
+            ),
+            revokeGrant: RevokeAccessGrantUseCase(
+                accessGrantRepository: grantRepo
+            ),
+            fetchContacts: FetchEmergencyContactsUseCase(
+                emergencyContactRepository: emergencyRepo
+            ),
+            manageContact: ManageEmergencyContactUseCase(
+                emergencyContactRepository: emergencyRepo
+            ),
+            manageConsents: ManageConsentsUseCase(
+                consentRepository: consentRepo
+            ),
+            manageNotifications: ManageNotificationsUseCase(
+                notificationRepository: notifRepo
+            )
+        )
     }
 }

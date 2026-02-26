@@ -33,6 +33,7 @@ struct LoginView: View {
 
             Text("Aarogya")
                 .font(Typography.largeTitle)
+                .accessibilityIdentifier(AccessibilityID.Login.title)
 
             Text("Your health records, secured")
                 .font(Typography.callout)
@@ -96,6 +97,7 @@ struct LoginView: View {
                     .font(Typography.body)
                     .keyboardType(.phonePad)
                     .textContentType(.telephoneNumber)
+                    .accessibilityIdentifier(AccessibilityID.Login.phoneField)
             }
             .padding(12)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -103,6 +105,7 @@ struct LoginView: View {
             PrimaryButton("Send OTP", icon: "arrow.right", isLoading: viewModel.isLoading) {
                 Task { await viewModel.requestOTP() }
             }
+            .accessibilityIdentifier(AccessibilityID.Login.sendOTPButton)
         }
     }
 
@@ -120,10 +123,12 @@ struct LoginView: View {
                 .multilineTextAlignment(.center)
                 .padding(12)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                .accessibilityIdentifier(AccessibilityID.Login.otpField)
 
             PrimaryButton("Verify", icon: "checkmark", isLoading: viewModel.isLoading) {
                 Task { await viewModel.verifyOTP() }
             }
+            .accessibilityIdentifier(AccessibilityID.Login.verifyButton)
 
             Button("Change number") {
                 viewModel.resetOTP()
