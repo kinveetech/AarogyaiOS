@@ -46,11 +46,13 @@ struct LoginView: View {
     private var socialLoginButtons: some View {
         VStack(spacing: 12) {
             SocialLoginButton(provider: .apple) {
-                // Social login handled in future iteration
+                Task { await viewModel.loginWithSocial(provider: .apple) }
             }
+            .disabled(viewModel.isLoading)
             SocialLoginButton(provider: .google) {
-                // Social login handled in future iteration
+                Task { await viewModel.loginWithSocial(provider: .google) }
             }
+            .disabled(viewModel.isLoading)
         }
     }
 

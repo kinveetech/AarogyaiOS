@@ -2,7 +2,9 @@ import Foundation
 @testable import AarogyaiOS
 
 final class MockAuthRepository: AuthRepository, @unchecked Sendable {
-    var socialAuthorizeResult: Result<URL, Error> = .success(URL(string: "https://auth.example.com")!)
+    var socialAuthorizeResult: Result<SocialAuthSession, Error> = .success(
+        SocialAuthSession(authorizeURL: URL(string: "https://auth.example.com")!, codeVerifier: "test-verifier", state: "test-state")
+    )
     var socialTokenResult: Result<AuthTokens, Error> = .success(.stub)
     var requestOTPResult: Result<Void, Error> = .success(())
     var verifyOTPResult: Result<AuthTokens, Error> = .success(.stub)
@@ -22,7 +24,7 @@ final class MockAuthRepository: AuthRepository, @unchecked Sendable {
     var lastVerifiedPhone: String?
     var lastVerifiedOTP: String?
 
-    func socialAuthorize(provider: String) async throws -> URL {
+    func socialAuthorize(provider: String) async throws -> SocialAuthSession {
         socialAuthorizeCallCount += 1
         return try socialAuthorizeResult.get()
     }

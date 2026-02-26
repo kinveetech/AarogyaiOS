@@ -19,6 +19,8 @@ final class LoginViewModel {
         self.onLoginSuccess = onLoginSuccess
     }
 
+    // MARK: - OTP Flow
+
     func requestOTP() async {
         guard !phone.isEmpty else {
             error = "Please enter your phone number"
@@ -69,6 +71,108 @@ final class LoginViewModel {
         otpSent = false
         otp = ""
         error = nil
+    }
+
+    // MARK: - Social Login
+
+    func loginWithSocial(provider: SocialLoginButton.SocialProvider) async {
+        isLoading = true
+        error = nil
+
+        let providerName: String = switch provider {
+        case .apple: "Apple"
+        case .google: "Google"
+        }
+
+        do {
+            let session = try await loginUseCase.getAuthSession(
+                provider: providerName
+            )
+            let callbackURL = try await performWebAuth(
+                url: session.authorizeURL,
+                state: session.state
+            )
+            let code = try extractAuthCode(from: callbackURL, expectedState: session.state)
+            _ = try await loginUseCase.executeSocial(
+                provider: providerName,
+                code: code,
+                codeVerifier: session.codeVerifier
+            )
+            await onLoginSuccess()
+        } catch is CancellationError {
+            Logger.auth.info("Social login cancelled by user")
+        } catch ASWebAuthenticationSessionError.canceledLogin {
+            Logger.auth.info("Social login cancelled by user")
+        } catch let apiError as APIError {
+            error = errorMessage(for: apiError)
+        } catch {
+            self.error = "Sign in failed. Please try again."
+            Logger.auth.error("Social login failed: \(error)")
+        }
+
+        isLoading = false
+    }
+
+    // MARK: - Private
+
+    private func performWebAuth(url: URL, state: String) async throws -> URL {
+        try await withCheckedThrowingContinuation { continuation in
+            let webSession = ASWebAuthenticationSession(
+                url: url,
+                callback: .customScheme("aarogya")
+            ) { callbackURL, sessionError in
+                if let sessionError {
+                    continuation.resume(throwing: sessionError)
+                } else if let callbackURL {
+                    continuation.resume(returning: callbackURL)
+                } else {
+                    continuation.resume(
+                        throwing: ASWebAuthenticationSessionError(
+                            .canceledLogin
+                        )
+                    )
+                }
+            }
+            webSession.prefersEphemeralWebBrowserSession = false
+            webSession.start()
+        }
+    }
+
+    private func extractAuthCode(
+        from url: URL,
+        expectedState: String
+    ) throws -> String {
+        guard let components = URLComponents(
+            url: url, resolvingAgainstBaseURL: false
+        ) else {
+            throw APIError.decodingError(underlying: URLError(.badURL))
+        }
+
+        let queryItems = components.queryItems ?? []
+
+        if let errorParam = queryItems.first(where: { $0.name == "error" })?.value {
+            let description = queryItems
+                .first { $0.name == "error_description" }?.value
+                ?? errorParam
+            Logger.auth.error("OAuth error: \(description)")
+            throw APIError.validationError(
+                fields: [FieldError(field: "oauth", message: description)]
+            )
+        }
+
+        guard let code = queryItems.first(where: { $0.name == "code" })?.value else {
+            throw APIError.decodingError(underlying: URLError(.badURL))
+        }
+
+        if let state = queryItems.first(where: { $0.name == "state" })?.value,
+           state != expectedState {
+            Logger.auth.error("OAuth state mismatch")
+            throw APIError.validationError(
+                fields: [FieldError(field: "state", message: "State mismatch")]
+            )
+        }
+
+        return code
     }
 
     private func errorMessage(for error: APIError) -> String {

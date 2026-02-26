@@ -432,9 +432,12 @@ final class AarogyaiOSUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(smsToggle.exists, "SMS toggle should exist")
 
-        // Save button
+        // Save button (may need scrolling into view)
         let saveButton = app.buttons["Save Preferences"]
-        XCTAssertTrue(saveButton.exists, "Save Preferences button should exist")
+        if !saveButton.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5), "Save Preferences button should exist")
     }
 
     func testSettingsDeleteAccountShowsConfirmation() throws {
