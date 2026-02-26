@@ -8,7 +8,7 @@ struct SocialAuthSession: Sendable {
 
 protocol AuthRepository: Sendable {
     func socialAuthorize(provider: String) async throws -> SocialAuthSession
-    func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens
+    func socialToken(provider: String, code: String, codeVerifier: String) async throws -> AuthTokens
     func requestOTP(phone: String) async throws
     func verifyOTP(phone: String, otp: String) async throws -> AuthTokens
     func refreshToken(refreshToken: String) async throws -> AuthTokens

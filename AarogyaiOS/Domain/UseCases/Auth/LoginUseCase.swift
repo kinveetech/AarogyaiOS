@@ -10,7 +10,7 @@ struct LoginUseCase: Sendable {
     }
 
     func executeSocial(provider: String, code: String, codeVerifier: String) async throws -> User {
-        let tokens = try await authRepository.socialToken(code: code, codeVerifier: codeVerifier)
+        let tokens = try await authRepository.socialToken(provider: provider, code: code, codeVerifier: codeVerifier)
         try await tokenStore.store(tokens)
         return try await authRepository.getCurrentUser()
     }

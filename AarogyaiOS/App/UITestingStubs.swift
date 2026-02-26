@@ -70,7 +70,7 @@ final class StubAuthRepository: AuthRepository, @unchecked Sendable {
         )
     }
 
-    func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens {
+    func socialToken(provider: String, code: String, codeVerifier: String) async throws -> AuthTokens {
         AuthTokens(accessToken: "stub-access", refreshToken: "stub-refresh", idToken: "stub-id", expiresIn: 3600)
     }
 
