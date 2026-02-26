@@ -37,6 +37,13 @@ struct RootView: View {
                         coordinator.consumePendingDeepLink()
                     }
                 ))
+            case .registration:
+                RegisterView(viewModel: RegisterViewModel(
+                    registerUseCase: container.registerUserUseCase,
+                    onRegistrationComplete: {
+                        await coordinator.handleRegistrationComplete()
+                    }
+                ))
             case .pendingApproval:
                 PendingApprovalView(
                     checkStatusUseCase: container.checkRegistrationStatusUseCase,

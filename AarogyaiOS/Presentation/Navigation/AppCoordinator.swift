@@ -7,6 +7,7 @@ final class AppCoordinator {
     enum AppState: Sendable {
         case loading
         case unauthenticated
+        case registration
         case pendingApproval
         case rejected
         case authenticated(User)
@@ -16,15 +17,22 @@ final class AppCoordinator {
     var pendingDeepLink: DeepLink?
     var selectedTab: AppTab = .reports
 
-    private let container: DependencyContainer
+    private let getCurrentUser: GetCurrentUserUseCase
+    private let logout: LogoutUseCase
 
     init(container: DependencyContainer) {
-        self.container = container
+        self.getCurrentUser = container.getCurrentUserUseCase
+        self.logout = container.logoutUseCase
+    }
+
+    init(getCurrentUser: GetCurrentUserUseCase, logout: LogoutUseCase) {
+        self.getCurrentUser = getCurrentUser
+        self.logout = logout
     }
 
     func checkAuthState() async {
         do {
-            let user = try await container.getCurrentUserUseCase.execute()
+            let user = try await getCurrentUser.execute()
             switch user.registrationStatus {
             case .registered, .pendingApproval:
                 state = .pendingApproval
@@ -38,7 +46,7 @@ final class AppCoordinator {
             case .unauthorized, .tokenRefreshFailed:
                 state = .unauthenticated
             case .registrationRequired:
-                state = .unauthenticated
+                state = .registration
             case .registrationPending:
                 state = .pendingApproval
             case .registrationRejected:
@@ -59,7 +67,7 @@ final class AppCoordinator {
 
     func handleLogout() async {
         do {
-            try await container.logoutUseCase.execute()
+            try await logout.execute()
         } catch {
             Logger.auth.error("Logout error: \(error)")
         }

@@ -1,23 +1,17 @@
 import Foundation
 
 struct UserProfileResponse: Decodable, Sendable {
-    let id: String
+    let sub: String
     let firstName: String
     let lastName: String
     let email: String
-    let phone: String
+    let phone: String?
     let address: String?
     let bloodGroup: String?
     let dateOfBirth: String?
     let gender: String?
-    let role: String
+    let roles: [String]
     let registrationStatus: String
-    let isAadhaarVerified: Bool
-    let aadhaarRefToken: String?
-    let doctorProfile: DoctorProfileDTO?
-    let labTechnicianProfile: LabTechProfileDTO?
-    let createdAt: String
-    let updatedAt: String
 }
 
 struct DoctorProfileDTO: Decodable, Sendable {
@@ -56,8 +50,8 @@ struct RegisterUserRequest: Encodable, Sendable {
     let bloodGroup: String?
     let address: String?
     let role: String
-    let doctorProfile: DoctorProfileInputDTO?
-    let labTechnicianProfile: LabTechProfileInputDTO?
+    let doctorData: DoctorProfileInputDTO?
+    let labTechnicianData: LabTechProfileInputDTO?
     let consents: [ConsentInputDTO]
 }
 
@@ -77,6 +71,21 @@ struct LabTechProfileInputDTO: Encodable, Sendable {
 struct ConsentInputDTO: Encodable, Sendable {
     let purpose: String
     let isGranted: Bool
+}
+
+struct RegisterUserResponse: Decodable, Sendable {
+    let sub: String
+    let role: String
+    let registrationStatus: String
+    let email: String
+    let firstName: String
+    let lastName: String
+    let phone: String?
+    let address: String?
+    let bloodGroup: String?
+    let dateOfBirth: String?
+    let gender: String?
+    let consentsGranted: [String]?
 }
 
 struct RegistrationStatusResponse: Decodable, Sendable {

@@ -1,10 +1,10 @@
 import Foundation
 
 enum ConsentPurpose: String, Codable, CaseIterable, Sendable {
-    case profileManagement = "ProfileManagement"
-    case medicalRecordsProcessing = "MedicalRecordsProcessing"
-    case medicalDataSharing = "MedicalDataSharing"
-    case emergencyContactManagement = "EmergencyContactManagement"
+    case profileManagement = "profile_management"
+    case medicalRecordsProcessing = "medical_records_processing"
+    case medicalDataSharing = "medical_data_sharing"
+    case emergencyContactManagement = "emergency_contact_management"
 
     var displayName: String {
         switch self {

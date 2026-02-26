@@ -23,7 +23,6 @@ final class APIClient: Sendable {
         self.decoder = decoder
 
         let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.dateEncodingStrategy = .iso8601
         self.encoder = encoder
     }
@@ -108,15 +107,16 @@ final class APIClient: Sendable {
             throw APIError.unauthorized
         case 403:
             let errorResponse = try? decoder.decode(ErrorResponse.self, from: data)
-            switch errorResponse?.code {
+            let errorCode = errorResponse?.errorCode
+            switch errorCode {
             case "registration_required": throw APIError.registrationRequired
             case "registration_pending": throw APIError.registrationPending
             case "registration_rejected": throw APIError.registrationRejected
             default:
-                if let code = errorResponse?.code, code.starts(with: "consent_required") {
-                    throw APIError.consentRequired(purpose: code)
+                if let errorCode, errorCode.starts(with: "consent_required") {
+                    throw APIError.consentRequired(purpose: errorCode)
                 }
-                throw APIError.forbidden(code: errorResponse?.code)
+                throw APIError.forbidden(code: errorCode)
             }
         case 404:
             throw APIError.notFound

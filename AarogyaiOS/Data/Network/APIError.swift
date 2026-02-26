@@ -32,5 +32,9 @@ struct FieldError: Decodable, Sendable {
 struct ErrorResponse: Decodable, Sendable {
     let message: String?
     let code: String?
+    let error: String?
     let errors: [FieldError]?
+
+    /// Backend sends either `code` or `error` depending on the middleware.
+    var errorCode: String? { code ?? error }
 }
