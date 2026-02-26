@@ -109,33 +109,37 @@ These SwiftUI components automatically use Liquid Glass on iOS 26 — no manual 
 ### Semantic Colors (Light / Dark)
 
 ```
-┌─────────────────────────────────────────────────────┐
-│ Token                 │ Light          │ Dark         │
-├───────────────────────┼────────────────┼──────────────┤
-│ brand.primary         │ #0D9488 (teal) │ #2DD4BF      │
-│ brand.primaryLight    │ #5EEAD4        │ #0F766E      │
-│ brand.secondary       │ #84CC16 (sage) │ #A3E635      │
-│ brand.accent          │ #F59E0B (amber)│ #FBBF24      │
-│                       │                │              │
-│ bg.primary            │ #FAFAF5 (cream)│ #0C1917      │
-│ bg.secondary          │ #F0F4F0        │ #132624      │
-│ bg.gradient.start     │ #FBF9F0        │ #0C1917      │
-│ bg.gradient.end       │ #E8F0E8        │ #132624      │
-│                       │                │              │
-│ text.primary          │ #1A1A1A        │ #F5F5F5      │
-│ text.secondary        │ #6B7280        │ #9CA3AF      │
-│ text.tertiary         │ #9CA3AF        │ #6B7280      │
-│                       │                │              │
-│ status.normal         │ #22C55E (green)│ #4ADE80      │
-│ status.warning        │ #F59E0B (amber)│ #FBBF24      │
-│ status.critical       │ #EF4444 (red)  │ #F87171      │
-│ status.info           │ #3B82F6 (blue) │ #60A5FA      │
-│                       │                │              │
-│ border.default        │ #E5E7EB        │ #374151      │
-└───────────────────────┴────────────────┴──────────────┘
+┌─────────────────────────────────────────────────────────┐
+│ Token                 │ Light              │ Dark           │
+├───────────────────────┼────────────────────┼────────────────┤
+│ brand.primary         │ #0E6B66 (teal)     │ #1A9E97        │
+│ brand.primaryLight    │ #1A9E97            │ #4FB4B0        │
+│ brand.secondary       │ #7FB285 (sage)     │ #9DC5A1        │
+│ brand.accent          │ #FFB347 (amber)    │ #FFD693        │
+│                       │                    │                │
+│ bg.primary            │ #FFF8F0 (cream)    │ #0B1A1A        │
+│ bg.secondary          │ #F0FAF0            │ #112626        │
+│ bg.gradient.start     │ #FFF8F0            │ #0B1A1A        │
+│ bg.gradient.end       │ #D5F0EA            │ #142B2B        │
+│                       │                    │                │
+│ text.primary          │ #0A4D4A (teal)     │ #E8F5F0        │
+│ text.secondary        │ #4A6E4D (sage)     │ #7FB285        │
+│ text.tertiary         │ #7FA8A6 (neutral)  │ #5A8C8A        │
+│                       │                    │                │
+│ status.normal         │ #4A6E4D (sage)     │ #9DC5A1        │
+│ status.warning        │ #C27A08 (amber)    │ #FFB347        │
+│ status.critical       │ #CC2B2B (coral)    │ #FF8A8A        │
+│ status.info           │ #0E6B66 (teal)     │ #1A9E97        │
+│                       │                    │                │
+│ border.default        │ #C8DCDB (neutral)  │ #2A4A48        │
+│                       │                    │                │
+│ accent (system)       │ #0E6B66 (teal)     │ #1A9E97        │
+└───────────────────────┴────────────────────┴────────────────┘
 ```
 
-Defined as Color assets in `Assets.xcassets` with light/dark variants.
+Aligned with the frontend Serene Bloom tokens (`AarogyaFrontend/src/theme/tokens.ts`).
+Defined as Color assets in `Assets.xcassets` with light/dark variants. AccentColor set
+globally via `ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME`.
 
 ### Glass Tinting
 
@@ -289,15 +293,23 @@ Properties:
 The app's signature background — the canvas that shows through all Liquid Glass surfaces.
 
 ```swift
+// 4-stop gradient matching the frontend's 165° pageGradient
 LinearGradient(
-    colors: [Color.bg.gradientStart, Color.bg.gradientEnd],
-    startPoint: .topLeading,
-    endPoint: .bottomTrailing
+    stops: [
+        .init(color: Color(hex: 0xFFF8F0), location: 0.0),   // warm cream
+        .init(color: Color(hex: 0xF0FAF0), location: 0.4),   // sage wash
+        .init(color: Color(hex: 0xE0F5F0), location: 0.7),   // teal wash
+        .init(color: Color(hex: 0xD5F0EA), location: 1.0)    // cool sage
+    ],
+    startPoint: UnitPoint(x: 0.25, y: 0),
+    endPoint: UnitPoint(x: 0.75, y: 1)
 )
 .ignoresSafeArea()
 ```
 
-Applied once at the root `ContentView` level. This gradient is what gives the glass its character — the teal/cream tones refract through all glass surfaces.
+Applied once at the root level via `.sereneBloomBackground()`. This gradient is what gives
+the glass its character — the teal/cream tones refract through all glass surfaces. Dark mode
+uses a deep teal 4-stop gradient (`#0B1A1A → #0F2020 → #112626 → #142B2B`).
 
 ---
 

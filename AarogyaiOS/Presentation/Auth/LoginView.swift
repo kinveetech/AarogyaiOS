@@ -26,19 +26,8 @@ struct LoginView: View {
     // MARK: - Branding
 
     private var branding: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "heart.text.clipboard")
-                .font(.system(size: 56))
-                .foregroundStyle(Color.Fallback.brandPrimary)
-
-            Text("Aarogya")
-                .font(Typography.largeTitle)
-                .accessibilityIdentifier(AccessibilityID.Login.title)
-
-            Text("Your health records, secured")
-                .font(Typography.callout)
-                .foregroundStyle(.secondary)
-        }
+        ShieldTreeLogo(size: 80, showWordmark: true)
+            .accessibilityIdentifier(AccessibilityID.Login.title)
     }
 
     // MARK: - Social Login
