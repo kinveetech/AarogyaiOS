@@ -3,23 +3,45 @@ import Foundation
 enum UserMapper {
     static func toDomain(_ dto: UserProfileResponse) -> User {
         User(
-            id: dto.id,
+            id: dto.sub,
             firstName: dto.firstName,
             lastName: dto.lastName,
             email: dto.email,
-            phone: dto.phone,
+            phone: dto.phone ?? "",
+            address: dto.address,
+            bloodGroup: dto.bloodGroup.flatMap { BloodGroup(rawValue: $0) },
+            dateOfBirth: dto.dateOfBirth.flatMap { Date(iso8601: $0) },
+            gender: dto.gender.flatMap { Gender(rawValue: $0) },
+            role: dto.roles.compactMap({ UserRole(rawValue: $0) }).first ?? .patient,
+            registrationStatus: RegistrationStatus(rawValue: dto.registrationStatus) ?? .registered,
+            isAadhaarVerified: false,
+            aadhaarRefToken: nil,
+            doctorProfile: nil,
+            labTechProfile: nil,
+            createdAt: .now,
+            updatedAt: .now
+        )
+    }
+
+    static func toDomain(_ dto: RegisterUserResponse) -> User {
+        User(
+            id: dto.sub,
+            firstName: dto.firstName,
+            lastName: dto.lastName,
+            email: dto.email,
+            phone: dto.phone ?? "",
             address: dto.address,
             bloodGroup: dto.bloodGroup.flatMap { BloodGroup(rawValue: $0) },
             dateOfBirth: dto.dateOfBirth.flatMap { Date(iso8601: $0) },
             gender: dto.gender.flatMap { Gender(rawValue: $0) },
             role: UserRole(rawValue: dto.role) ?? .patient,
             registrationStatus: RegistrationStatus(rawValue: dto.registrationStatus) ?? .registered,
-            isAadhaarVerified: dto.isAadhaarVerified,
-            aadhaarRefToken: dto.aadhaarRefToken,
-            doctorProfile: dto.doctorProfile.map { toDomain($0) },
-            labTechProfile: dto.labTechnicianProfile.map { toDomain($0) },
-            createdAt: Date(iso8601: dto.createdAt) ?? .now,
-            updatedAt: Date(iso8601: dto.updatedAt) ?? .now
+            isAadhaarVerified: false,
+            aadhaarRefToken: nil,
+            doctorProfile: nil,
+            labTechProfile: nil,
+            createdAt: .now,
+            updatedAt: .now
         )
     }
 
@@ -47,7 +69,7 @@ enum UserMapper {
             accessToken: dto.accessToken,
             refreshToken: dto.refreshToken,
             idToken: dto.idToken,
-            expiresIn: dto.expiresIn
+            expiresIn: dto.expiresInSeconds
         )
     }
 }

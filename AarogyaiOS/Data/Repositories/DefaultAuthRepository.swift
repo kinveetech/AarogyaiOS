@@ -76,7 +76,7 @@ struct DefaultAuthRepository: AuthRepository {
     }
 
     func getCurrentUser() async throws -> User {
-        let response: UserProfileResponse = try await apiClient.request(.authMe)
+        let response: UserProfileResponse = try await apiClient.request(.userProfile)
         return UserMapper.toDomain(response)
     }
 }

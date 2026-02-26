@@ -1,5 +1,6 @@
 import Foundation
 import AuthenticationServices
+import UIKit
 import OSLog
 
 @Observable
@@ -99,6 +100,9 @@ final class LoginViewModel {
                 codeVerifier: session.codeVerifier
             )
             await onLoginSuccess()
+        } catch APIError.registrationRequired, APIError.registrationPending {
+            // Tokens are stored — let AppCoordinator determine the correct screen
+            await onLoginSuccess()
         } catch is CancellationError {
             Logger.auth.info("Social login cancelled by user")
         } catch ASWebAuthenticationSessionError.canceledLogin {
@@ -134,6 +138,7 @@ final class LoginViewModel {
                 }
             }
             webSession.prefersEphemeralWebBrowserSession = false
+            webSession.presentationContextProvider = WebAuthPresentationContext.shared
             webSession.start()
         }
     }
@@ -184,3 +189,27 @@ final class LoginViewModel {
         }
     }
 }
+
+// MARK: - Presentation Context Provider
+
+private final class WebAuthPresentationContext: NSObject,
+    ASWebAuthenticationPresentationContextProviding {
+
+    @MainActor static let shared = WebAuthPresentationContext()
+
+    func presentationAnchor(
+        for session: ASWebAuthenticationSession
+    ) -> ASPresentationAnchor {
+        MainActor.assumeIsolated {
+            guard let scene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+                  let window = scene.windows.first(where: { $0.isKeyWindow })
+            else {
+                return ASPresentationAnchor()
+            }
+            return window
+        }
+    }
+}
+

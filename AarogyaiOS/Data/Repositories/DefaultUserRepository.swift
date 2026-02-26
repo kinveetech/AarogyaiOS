@@ -38,7 +38,7 @@ struct DefaultUserRepository: UserRepository {
             bloodGroup: request.bloodGroup?.rawValue,
             address: request.address,
             role: request.role.rawValue,
-            doctorProfile: request.doctorProfile.map {
+            doctorData: request.doctorProfile.map {
                 DoctorProfileInputDTO(
                     medicalLicenseNumber: $0.medicalLicenseNumber,
                     specialization: $0.specialization,
@@ -46,7 +46,7 @@ struct DefaultUserRepository: UserRepository {
                     clinicAddress: $0.clinicAddress
                 )
             },
-            labTechnicianProfile: request.labTechProfile.map {
+            labTechnicianData: request.labTechProfile.map {
                 LabTechProfileInputDTO(
                     labName: $0.labName,
                     labLicenseNumber: $0.labLicenseNumber,
@@ -57,7 +57,7 @@ struct DefaultUserRepository: UserRepository {
                 ConsentInputDTO(purpose: $0.purpose.rawValue, isGranted: $0.isGranted)
             }
         )
-        let response: UserProfileResponse = try await apiClient.request(.registerUser, body: dto)
+        let response: RegisterUserResponse = try await apiClient.request(.registerUser, body: dto)
         return UserMapper.toDomain(response)
     }
 
