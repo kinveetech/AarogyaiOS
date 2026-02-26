@@ -39,8 +39,10 @@ struct LoginUseCaseTests {
         #expect(user.id == "user-1")
     }
 
-    @Test func getAuthorizeURLReturnsURL() async throws {
-        let url = try await sut.getAuthorizeURL(provider: "google")
-        #expect(url.absoluteString == "https://auth.example.com")
+    @Test func getAuthSessionReturnsSession() async throws {
+        let session = try await sut.getAuthSession(provider: "google")
+        #expect(session.authorizeURL.absoluteString == "https://auth.example.com")
+        #expect(session.codeVerifier == "test-verifier")
+        #expect(session.state == "test-state")
     }
 }

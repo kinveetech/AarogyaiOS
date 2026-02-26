@@ -10,9 +10,11 @@ struct DefaultAuthRepository: AuthRepository {
         self.tokenStore = tokenStore
     }
 
-    func socialAuthorize(provider: String) async throws -> URL {
+    func socialAuthorize(provider: String) async throws -> SocialAuthSession {
         let codeVerifier = PKCEGenerator.generateCodeVerifier()
-        let codeChallenge = PKCEGenerator.generateCodeChallenge(from: codeVerifier)
+        let codeChallenge = PKCEGenerator.generateCodeChallenge(
+            from: codeVerifier
+        )
         let state = PKCEGenerator.generateState()
 
         let request = SocialAuthorizeRequest(
@@ -31,7 +33,12 @@ struct DefaultAuthRepository: AuthRepository {
         guard let url = URL(string: response.authorizeUrl) else {
             throw APIError.decodingError(underlying: URLError(.badURL))
         }
-        return url
+
+        return SocialAuthSession(
+            authorizeURL: url,
+            codeVerifier: codeVerifier,
+            state: state
+        )
     }
 
     func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens {

@@ -25,7 +25,7 @@ struct LoginUseCase: Sendable {
         try await authRepository.requestOTP(phone: phone)
     }
 
-    func getAuthorizeURL(provider: String) async throws -> URL {
+    func getAuthSession(provider: String) async throws -> SocialAuthSession {
         try await authRepository.socialAuthorize(provider: provider)
     }
 }

@@ -62,8 +62,12 @@ final class StubAuthRepository: AuthRepository, @unchecked Sendable {
         self.tokenStore = tokenStore
     }
 
-    func socialAuthorize(provider: String) async throws -> URL {
-        URL(string: "https://auth.example.com")!
+    func socialAuthorize(provider: String) async throws -> SocialAuthSession {
+        SocialAuthSession(
+            authorizeURL: URL(string: "https://auth.example.com")!,
+            codeVerifier: "stub-verifier",
+            state: "stub-state"
+        )
     }
 
     func socialToken(code: String, codeVerifier: String) async throws -> AuthTokens {
