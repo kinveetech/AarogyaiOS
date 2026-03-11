@@ -62,6 +62,18 @@ struct EmergencyContactsView: View {
                 manageUseCase: viewModel.manageUseCase
             )
         }
+        .sheet(isPresented: $viewModel.showAccessRequestForm) {
+            EmergencyAccessRequestFormView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $viewModel.showAccessGranted) {
+            viewModel.dismissAccessGranted()
+        } content: {
+            if let grant = viewModel.grantedAccess {
+                EmergencyAccessGrantedView(grant: grant) {
+                    viewModel.dismissAccessGranted()
+                }
+            }
+        }
     }
 
     private var contactsList: some View {
@@ -73,6 +85,31 @@ struct EmergencyContactsView: View {
                 .swipeActions(edge: .trailing) {
                     Button("Delete", role: .destructive) {
                         viewModel.confirmDeleteContact(contact)
+                    }
+                }
+                .swipeActions(edge: .leading) {
+                    Button {
+                        viewModel.startAccessRequest(for: contact)
+                    } label: {
+                        Label("Request Access", systemImage: "lock.open.fill")
+                    }
+                    .tint(.orange)
+                }
+                .contextMenu {
+                    Button {
+                        viewModel.editContact(contact)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    Button {
+                        viewModel.startAccessRequest(for: contact)
+                    } label: {
+                        Label("Request Emergency Access", systemImage: "lock.open.fill")
+                    }
+                    Button(role: .destructive) {
+                        viewModel.confirmDeleteContact(contact)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }

@@ -88,6 +88,16 @@ extension EmergencyContact {
     )
 }
 
+extension EmergencyAccessGrant {
+    static let stub = EmergencyAccessGrant(
+        grantId: "grant-ea-1",
+        emergencyContactId: "contact-1",
+        startsAt: .now,
+        expiresAt: .now.addingTimeInterval(3600 * 24),
+        purpose: "Medical emergency"
+    )
+}
+
 extension NotificationPreferences {
     static let stub = NotificationPreferences(
         reportUploaded: ChannelPreferences(push: true, email: true, sms: false),

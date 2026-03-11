@@ -13,6 +13,17 @@ final class EmergencyContactsViewModel {
     var showDeleteConfirmation = false
     var contactToDelete: EmergencyContact?
 
+    // Emergency access request state
+    var showAccessRequestForm = false
+    var accessRequestContact: EmergencyContact?
+    var accessRequestReason = ""
+    var accessRequestPatientSub = ""
+    var accessRequestDoctorSub = ""
+    var accessRequestDurationHours: Int?
+    var isRequestingAccess = false
+    var showAccessGranted = false
+    var grantedAccess: EmergencyAccessGrant?
+
     let fetchUseCase: FetchEmergencyContactsUseCase
     let manageUseCase: ManageEmergencyContactUseCase
 
@@ -73,5 +84,80 @@ final class EmergencyContactsViewModel {
 
     func onContactSaved() async {
         await loadContacts()
+    }
+
+    // MARK: - Emergency Access Request
+
+    func startAccessRequest(for contact: EmergencyContact) {
+        accessRequestContact = contact
+        accessRequestReason = ""
+        accessRequestPatientSub = ""
+        accessRequestDoctorSub = ""
+        accessRequestDurationHours = nil
+        showAccessRequestForm = true
+    }
+
+    func submitAccessRequest() async {
+        guard let contact = accessRequestContact else { return }
+        guard !accessRequestPatientSub.isEmpty else {
+            error = "Patient identifier is required"
+            showError = true
+            return
+        }
+        guard !accessRequestDoctorSub.isEmpty else {
+            error = "Doctor identifier is required"
+            showError = true
+            return
+        }
+        guard !accessRequestReason.isEmpty else {
+            error = "Reason is required for emergency access"
+            showError = true
+            return
+        }
+
+        isRequestingAccess = true
+
+        do {
+            let input = EmergencyAccessInput(
+                patientSub: accessRequestPatientSub,
+                emergencyContactPhone: contact.phone,
+                doctorSub: accessRequestDoctorSub,
+                reason: accessRequestReason,
+                durationHours: accessRequestDurationHours
+            )
+            let grant = try await manageUseCase.requestEmergencyAccess(input: input)
+            grantedAccess = grant
+            showAccessRequestForm = false
+            showAccessGranted = true
+        } catch let apiError as APIError {
+            handleAccessRequestError(apiError)
+        } catch {
+            self.error = "Failed to request emergency access"
+            showError = true
+            Logger.data.error("Emergency access request failed: \(error)")
+        }
+
+        isRequestingAccess = false
+    }
+
+    func dismissAccessGranted() {
+        showAccessGranted = false
+        grantedAccess = nil
+        accessRequestContact = nil
+    }
+
+    private func handleAccessRequestError(_ apiError: APIError) {
+        switch apiError {
+        case .validationError:
+            error = "Invalid request. Please check the details and try again."
+        case .notFound:
+            error = "Patient not found. Please verify the patient identifier."
+        case .forbidden:
+            error = "You are not authorized to request emergency access."
+        default:
+            error = "Failed to request emergency access. Please try again."
+        }
+        showError = true
+        Logger.data.error("Emergency access request failed: \(apiError)")
     }
 }

@@ -6,17 +6,19 @@ final class MockEmergencyContactRepository: EmergencyContactRepository, @uncheck
     var createContactResult: Result<EmergencyContact, Error> = .success(.stub)
     var updateContactResult: Result<EmergencyContact, Error> = .success(.stub)
     var deleteContactResult: Result<Void, Error> = .success(())
-    var requestEmergencyAccessResult: Result<Void, Error> = .success(())
+    var requestEmergencyAccessResult: Result<EmergencyAccessGrant, Error> = .success(.stub)
 
     var getContactsCallCount = 0
     var createContactCallCount = 0
     var updateContactCallCount = 0
     var deleteContactCallCount = 0
+    var requestEmergencyAccessCallCount = 0
 
     var lastDeletedContactId: String?
     var lastCreatedInput: EmergencyContactInput?
     var lastUpdatedInput: EmergencyContactInput?
     var lastUpdatedId: String?
+    var lastEmergencyAccessInput: EmergencyAccessInput?
 
     func getContacts() async throws -> [EmergencyContact] {
         getContactsCallCount += 1
@@ -42,7 +44,9 @@ final class MockEmergencyContactRepository: EmergencyContactRepository, @uncheck
         try deleteContactResult.get()
     }
 
-    func requestEmergencyAccess(contactPhone: String) async throws {
-        try requestEmergencyAccessResult.get()
+    func requestEmergencyAccess(input: EmergencyAccessInput) async throws -> EmergencyAccessGrant {
+        requestEmergencyAccessCallCount += 1
+        lastEmergencyAccessInput = input
+        return try requestEmergencyAccessResult.get()
     }
 }

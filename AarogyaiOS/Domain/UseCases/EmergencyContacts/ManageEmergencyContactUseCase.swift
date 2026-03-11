@@ -19,7 +19,7 @@ struct ManageEmergencyContactUseCase: Sendable {
         try await emergencyContactRepository.deleteContact(id: id)
     }
 
-    func requestEmergencyAccess(contactPhone: String) async throws {
-        try await emergencyContactRepository.requestEmergencyAccess(contactPhone: contactPhone)
+    func requestEmergencyAccess(input: EmergencyAccessInput) async throws -> EmergencyAccessGrant {
+        try await emergencyContactRepository.requestEmergencyAccess(input: input)
     }
 }

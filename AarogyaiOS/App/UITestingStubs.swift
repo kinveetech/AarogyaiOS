@@ -252,7 +252,16 @@ final class StubEmergencyContactRepository: EmergencyContactRepository, @uncheck
         try await Task.sleep(for: .milliseconds(200))
     }
 
-    func requestEmergencyAccess(contactPhone: String) async throws {}
+    func requestEmergencyAccess(input: EmergencyAccessInput) async throws -> EmergencyAccessGrant {
+        try await Task.sleep(for: .milliseconds(200))
+        return EmergencyAccessGrant(
+            grantId: UUID().uuidString,
+            emergencyContactId: "ec-1",
+            startsAt: .now,
+            expiresAt: .now.addingTimeInterval(3600 * 24),
+            purpose: input.reason
+        )
+    }
 }
 
 // MARK: - Stub Consent Repository

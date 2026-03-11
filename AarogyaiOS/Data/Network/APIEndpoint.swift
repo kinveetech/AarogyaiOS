@@ -112,7 +112,7 @@ enum APIEndpoint: Sendable {
             "/api/v1/emergency-contacts/\(id)"
 
         // Emergency Access
-        case .requestEmergencyAccess: "/api/v1/emergency-access/request"
+        case .requestEmergencyAccess: "/api/v1/emergency-access/requests"
 
         // Consents
         case .upsertConsent(let purpose): "/api/v1/consents/\(purpose)"
