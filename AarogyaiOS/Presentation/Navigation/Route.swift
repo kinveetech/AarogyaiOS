@@ -10,6 +10,7 @@ enum Route: Hashable {
 
     // Emergency
     case emergencyContactForm(contact: EmergencyContact?)
+    case emergencyAccessAudit
 
     // Settings
     case profileEdit
@@ -29,6 +30,8 @@ enum Route: Hashable {
         case .emergencyContactForm(let contact):
             hasher.combine("emergencyContactForm")
             hasher.combine(contact?.id)
+        case .emergencyAccessAudit:
+            hasher.combine("emergencyAccessAudit")
         case .profileEdit:
             hasher.combine("profileEdit")
         case .consents:
@@ -47,6 +50,7 @@ enum Route: Hashable {
         case (.createAccessGrant, .createAccessGrant): true
         case (.emergencyContactForm(let lhsContact), .emergencyContactForm(let rhsContact)):
             lhsContact?.id == rhsContact?.id
+        case (.emergencyAccessAudit, .emergencyAccessAudit): true
         case (.profileEdit, .profileEdit): true
         case (.consents, .consents): true
         case (.notificationPreferences, .notificationPreferences): true

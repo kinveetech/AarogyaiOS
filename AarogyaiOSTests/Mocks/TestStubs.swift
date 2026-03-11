@@ -98,6 +98,44 @@ extension EmergencyAccessGrant {
     )
 }
 
+extension EmergencyAccessAuditEntry {
+    static let stub = EmergencyAccessAuditEntry(
+        id: "audit-1",
+        occurredAt: Date(timeIntervalSince1970: 1_700_000_000),
+        action: "emergency_access_granted",
+        grantId: "grant-1",
+        actorUserId: "doctor-1",
+        actorRole: "doctor",
+        resourceType: "EmergencyAccess",
+        resourceId: "grant-1",
+        metadata: ["durationHours": "24"]
+    )
+
+    static let stubViewedEntry = EmergencyAccessAuditEntry(
+        id: "audit-2",
+        occurredAt: Date(timeIntervalSince1970: 1_700_003_600),
+        action: "emergency_record_viewed",
+        grantId: "grant-1",
+        actorUserId: "doctor-1",
+        actorRole: "doctor",
+        resourceType: "Report",
+        resourceId: "report-1",
+        metadata: [:]
+    )
+
+    static let stubExpiredEntry = EmergencyAccessAuditEntry(
+        id: "audit-3",
+        occurredAt: Date(timeIntervalSince1970: 1_700_086_400),
+        action: "emergency_access_expired",
+        grantId: "grant-2",
+        actorUserId: nil,
+        actorRole: nil,
+        resourceType: "EmergencyAccess",
+        resourceId: "grant-2",
+        metadata: [:]
+    )
+}
+
 extension NotificationPreferences {
     static let stub = NotificationPreferences(
         reportUploaded: ChannelPreferences(push: true, email: true, sms: false),

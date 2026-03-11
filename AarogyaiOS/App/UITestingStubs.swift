@@ -264,6 +264,19 @@ final class StubEmergencyContactRepository: EmergencyContactRepository, @uncheck
     }
 }
 
+// MARK: - Stub Emergency Access Repository
+
+final class StubEmergencyAccessRepository: EmergencyAccessRepository, @unchecked Sendable {
+    func getAuditTrail(page: Int, pageSize: Int) async throws -> PaginatedResult<EmergencyAccessAuditEntry> {
+        try await Task.sleep(for: .milliseconds(200))
+        return PaginatedResult(
+            items: EmergencyAccessAuditEntry.uiTestStubs,
+            page: 1, pageSize: pageSize,
+            totalCount: EmergencyAccessAuditEntry.uiTestStubs.count
+        )
+    }
+}
+
 // MARK: - Stub Consent Repository
 
 final class StubConsentRepository: ConsentRepository, @unchecked Sendable {
@@ -539,6 +552,44 @@ extension EmergencyContact {
             isPrimary: false,
             createdAt: Date(timeIntervalSinceNow: -86400 * 30),
             updatedAt: .now
+        ),
+    ]
+}
+
+extension EmergencyAccessAuditEntry {
+    static let uiTestStubs: [EmergencyAccessAuditEntry] = [
+        EmergencyAccessAuditEntry(
+            id: "audit-1",
+            occurredAt: Date(timeIntervalSinceNow: -3600),
+            action: "emergency_access_granted",
+            grantId: "grant-1",
+            actorUserId: "doc-1",
+            actorRole: "doctor",
+            resourceType: "EmergencyAccess",
+            resourceId: "grant-1",
+            metadata: ["durationHours": "24"]
+        ),
+        EmergencyAccessAuditEntry(
+            id: "audit-2",
+            occurredAt: Date(timeIntervalSinceNow: -7200),
+            action: "emergency_record_viewed",
+            grantId: "grant-1",
+            actorUserId: "doc-1",
+            actorRole: "doctor",
+            resourceType: "Report",
+            resourceId: "rpt-1",
+            metadata: [:]
+        ),
+        EmergencyAccessAuditEntry(
+            id: "audit-3",
+            occurredAt: Date(timeIntervalSinceNow: -86400),
+            action: "emergency_access_expired",
+            grantId: "grant-2",
+            actorUserId: nil,
+            actorRole: nil,
+            resourceType: "EmergencyAccess",
+            resourceId: "grant-2",
+            metadata: [:]
         ),
     ]
 }
