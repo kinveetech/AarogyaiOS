@@ -43,6 +43,7 @@ enum APIEndpoint: Sendable {
 
     // Emergency Access
     case requestEmergencyAccess
+    case emergencyAccessAudit(page: Int, pageSize: Int)
 
     // Consents
     case upsertConsent(purpose: String)
@@ -113,6 +114,7 @@ enum APIEndpoint: Sendable {
 
         // Emergency Access
         case .requestEmergencyAccess: "/api/v1/emergency-access/request"
+        case .emergencyAccessAudit: "/api/v1/emergency-access/audit"
 
         // Consents
         case .upsertConsent(let purpose): "/api/v1/consents/\(purpose)"
@@ -145,6 +147,11 @@ enum APIEndpoint: Sendable {
             if let status { items.append(URLQueryItem(name: "status", value: status)) }
             if let search { items.append(URLQueryItem(name: "search", value: search)) }
             return items
+        case .emergencyAccessAudit(let page, let pageSize):
+            return [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "pageSize", value: "\(pageSize)")
+            ]
         default:
             return nil
         }

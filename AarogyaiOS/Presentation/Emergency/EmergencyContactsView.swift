@@ -2,6 +2,12 @@ import SwiftUI
 
 struct EmergencyContactsView: View {
     @State var viewModel: EmergencyContactsViewModel
+    let fetchAuditUseCase: FetchEmergencyAccessAuditUseCase?
+
+    init(viewModel: EmergencyContactsViewModel, fetchAuditUseCase: FetchEmergencyAccessAuditUseCase? = nil) {
+        self._viewModel = State(wrappedValue: viewModel)
+        self.fetchAuditUseCase = fetchAuditUseCase
+    }
 
     var body: some View {
         Group {
@@ -22,6 +28,14 @@ struct EmergencyContactsView: View {
         }
         .navigationTitle("Emergency Contacts")
         .toolbar {
+            if let fetchAuditUseCase {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink(value: Route.emergencyAccessAudit) {
+                        Image(systemName: "shield.lefthalf.filled")
+                    }
+                    .accessibilityLabel("Access Audit Trail")
+                }
+            }
             if viewModel.canAddMore {
                 ToolbarItem(placement: .primaryAction) {
                     Button {

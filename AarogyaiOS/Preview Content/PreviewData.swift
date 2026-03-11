@@ -93,6 +93,42 @@ enum PreviewData {
         updatedAt: .now
     )
 
+    static let emergencyAccessAuditEntries: [EmergencyAccessAuditEntry] = [
+        EmergencyAccessAuditEntry(
+            id: "audit_001",
+            occurredAt: .now.addingTimeInterval(-3600),
+            action: "emergency_access_granted",
+            grantId: "grant_001",
+            actorUserId: "doc_001",
+            actorRole: "doctor",
+            resourceType: "EmergencyAccess",
+            resourceId: "grant_001",
+            metadata: ["durationHours": "24"]
+        ),
+        EmergencyAccessAuditEntry(
+            id: "audit_002",
+            occurredAt: .now.addingTimeInterval(-7200),
+            action: "emergency_record_viewed",
+            grantId: "grant_001",
+            actorUserId: "doc_001",
+            actorRole: "doctor",
+            resourceType: "Report",
+            resourceId: "rpt_001",
+            metadata: [:]
+        ),
+        EmergencyAccessAuditEntry(
+            id: "audit_003",
+            occurredAt: .now.addingTimeInterval(-86400),
+            action: "emergency_access_expired",
+            grantId: "grant_002",
+            actorUserId: nil,
+            actorRole: nil,
+            resourceType: "EmergencyAccess",
+            resourceId: "grant_002",
+            metadata: [:]
+        )
+    ]
+
     static let reports: [Report] = [
         report,
         Report(
