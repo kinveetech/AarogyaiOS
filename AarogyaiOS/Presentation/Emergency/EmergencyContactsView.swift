@@ -34,6 +34,26 @@ struct EmergencyContactsView: View {
         }
         .refreshable { await viewModel.loadContacts() }
         .task { await viewModel.loadContacts() }
+        .confirmationDialog(
+            "Delete Contact",
+            isPresented: $viewModel.showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                Task { await viewModel.deleteContact() }
+            }
+        } message: {
+            if let contact = viewModel.contactToDelete {
+                Text("Remove \(contact.name) from your emergency contacts? This action cannot be undone.")
+            }
+        }
+        .alert("Error", isPresented: $viewModel.showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            if let error = viewModel.error {
+                Text(error)
+            }
+        }
         .sheet(isPresented: $viewModel.showContactForm) {
             Task { await viewModel.onContactSaved() }
         } content: {
@@ -52,7 +72,7 @@ struct EmergencyContactsView: View {
                 }
                 .swipeActions(edge: .trailing) {
                     Button("Delete", role: .destructive) {
-                        Task { await viewModel.deleteContact(contact) }
+                        viewModel.confirmDeleteContact(contact)
                     }
                 }
             }

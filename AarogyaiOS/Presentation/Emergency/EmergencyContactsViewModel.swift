@@ -7,8 +7,11 @@ final class EmergencyContactsViewModel {
     var contacts: [EmergencyContact] = []
     var isLoading = false
     var error: String?
+    var showError = false
     var editingContact: EmergencyContact?
     var showContactForm = false
+    var showDeleteConfirmation = false
+    var contactToDelete: EmergencyContact?
 
     let fetchUseCase: FetchEmergencyContactsUseCase
     let manageUseCase: ManageEmergencyContactUseCase
@@ -39,12 +42,21 @@ final class EmergencyContactsViewModel {
         isLoading = false
     }
 
-    func deleteContact(_ contact: EmergencyContact) async {
+    func confirmDeleteContact(_ contact: EmergencyContact) {
+        contactToDelete = contact
+        showDeleteConfirmation = true
+    }
+
+    func deleteContact() async {
+        guard let contact = contactToDelete else { return }
+        contactToDelete = nil
+
         do {
             try await manageUseCase.delete(id: contact.id)
             contacts.removeAll { $0.id == contact.id }
         } catch {
             self.error = "Failed to delete contact"
+            self.showError = true
             Logger.data.error("Delete contact failed: \(error)")
         }
     }
