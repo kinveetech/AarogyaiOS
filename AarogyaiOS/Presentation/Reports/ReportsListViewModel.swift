@@ -11,6 +11,8 @@ final class ReportsListViewModel {
     var isLoadingMore = false
     var error: String?
     var hasMorePages = true
+    var isFromCache = false
+    var lastFetchedAt: Date?
 
     private var currentPage = 1
     private let pageSize = Constants.Pagination.defaultPageSize
@@ -20,20 +22,42 @@ final class ReportsListViewModel {
         self.fetchReportsUseCase = fetchReportsUseCase
     }
 
+    /// Human-readable staleness indicator, e.g. "Last updated 5 min ago"
+    var stalenessText: String? {
+        guard isFromCache, let lastFetchedAt else { return nil }
+        let elapsed = Date.now.timeIntervalSince(lastFetchedAt)
+
+        if elapsed < 60 {
+            return "Last updated just now"
+        } else if elapsed < 3600 {
+            let minutes = Int(elapsed / 60)
+            return "Last updated \(minutes) min ago"
+        } else {
+            let hours = Int(elapsed / 3600)
+            return "Last updated \(hours) hr ago"
+        }
+    }
+
     func loadReports() async {
         isLoading = true
         error = nil
         currentPage = 1
 
         do {
-            let result = try await fetchReportsUseCase.execute(
+            let result = try await fetchReportsUseCase.executeWithCache(
                 page: 1,
                 pageSize: pageSize,
                 type: selectedFilter,
                 search: searchQuery.isEmpty ? nil : searchQuery
             )
-            reports = result.items
-            hasMorePages = result.items.count >= pageSize
+            reports = result.data.items
+            hasMorePages = result.data.items.count >= pageSize
+            isFromCache = result.isCached
+            lastFetchedAt = result.lastFetchedAt
+
+            if result.isCached {
+                self.error = "Showing offline data"
+            }
         } catch {
             self.error = "Failed to load reports"
             Logger.data.error("Load reports failed: \(error)")
