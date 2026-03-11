@@ -19,6 +19,7 @@ struct ReportsListView: View {
         .onSubmit(of: .search) { viewModel.search() }
         .refreshable { await viewModel.refresh() }
         .task { await viewModel.loadReports() }
+        .onAppear { Task { await viewModel.refreshIfNeeded() } }
         .sheet(isPresented: $showUpload) {
             Text("Upload Report") // Placeholder for ReportUploadView
         }

@@ -91,4 +91,48 @@ struct ReportsListViewModelTests {
         await sut.loadReports()
         #expect(sut.stalenessText == nil)
     }
+
+    // MARK: - Needs Refresh
+
+    @Test func needsRefreshStartsFalse() {
+        let sut = makeSUT()
+        #expect(!sut.needsRefresh)
+    }
+
+    @Test func markNeedsRefreshSetsFlag() {
+        let sut = makeSUT()
+        sut.markNeedsRefresh()
+        #expect(sut.needsRefresh)
+    }
+
+    @Test func refreshIfNeededReloadsWhenFlagSet() async {
+        let sut = makeSUT()
+        await sut.loadReports()
+        let callCountBefore = reportRepo.getReportsWithCacheCallCount
+
+        sut.markNeedsRefresh()
+        await sut.refreshIfNeeded()
+
+        #expect(reportRepo.getReportsWithCacheCallCount == callCountBefore + 1)
+        #expect(!sut.needsRefresh)
+    }
+
+    @Test func refreshIfNeededDoesNothingWhenFlagNotSet() async {
+        let sut = makeSUT()
+        await sut.loadReports()
+        let callCountBefore = reportRepo.getReportsWithCacheCallCount
+
+        await sut.refreshIfNeeded()
+
+        #expect(reportRepo.getReportsWithCacheCallCount == callCountBefore)
+    }
+
+    @Test func refreshIfNeededClearsFlagAfterRefresh() async {
+        let sut = makeSUT()
+        sut.markNeedsRefresh()
+
+        await sut.refreshIfNeeded()
+
+        #expect(!sut.needsRefresh)
+    }
 }

@@ -2,12 +2,19 @@ import Foundation
 import Testing
 @testable import AarogyaiOS
 
+private final class CallTracker: @unchecked Sendable {
+    var called = false
+}
+
 @Suite("ReportDetailViewModel")
 @MainActor
 struct ReportDetailViewModelTests {
     let reportRepo = MockReportRepository()
 
-    func makeSUT(reportId: String = "report-1") -> ReportDetailViewModel {
+    func makeSUT(
+        reportId: String = "report-1",
+        onDelete: (@Sendable () -> Void)? = nil
+    ) -> ReportDetailViewModel {
         let fetchUseCase = FetchReportsUseCase(reportRepository: reportRepo)
         let downloadUseCase = DownloadReportUseCase(reportRepository: reportRepo)
         let deleteUseCase = DeleteReportUseCase(reportRepository: reportRepo)
@@ -17,7 +24,8 @@ struct ReportDetailViewModelTests {
             fetchReportsUseCase: fetchUseCase,
             downloadReportUseCase: downloadUseCase,
             deleteReportUseCase: deleteUseCase,
-            extractionUseCase: extractionUseCase
+            extractionUseCase: extractionUseCase,
+            onDelete: onDelete
         )
     }
 
@@ -94,6 +102,16 @@ struct ReportDetailViewModelTests {
 
         #expect(result)
         #expect(!sut.isDeleting)
+        #expect(sut.error == nil)
+    }
+
+    @Test func deleteReportCallsRepositoryWithCorrectId() async {
+        let sut = makeSUT(reportId: "report-42")
+
+        _ = await sut.deleteReport()
+
+        #expect(reportRepo.deleteReportCallCount == 1)
+        #expect(reportRepo.lastDeletedReportId == "report-42")
     }
 
     @Test func deleteReportFailure() async {
@@ -105,6 +123,79 @@ struct ReportDetailViewModelTests {
         #expect(!result)
         #expect(sut.error == "Failed to delete report")
         #expect(!sut.isDeleting)
+    }
+
+    @Test func deleteReportFailureDoesNotClearExistingReport() async {
+        let sut = makeSUT()
+        await sut.loadReport()
+        #expect(sut.report != nil)
+
+        reportRepo.deleteReportResult = .failure(APIError.serverError(status: 500))
+        _ = await sut.deleteReport()
+
+        #expect(sut.report != nil)
+    }
+
+    @Test func deleteReportSuccessCallsOnDelete() async {
+        let tracker = CallTracker()
+        let sut = makeSUT(onDelete: { tracker.called = true })
+
+        let result = await sut.deleteReport()
+
+        #expect(result)
+        #expect(tracker.called)
+    }
+
+    @Test func deleteReportFailureDoesNotCallOnDelete() async {
+        reportRepo.deleteReportResult = .failure(APIError.serverError(status: 500))
+        let tracker = CallTracker()
+        let sut = makeSUT(onDelete: { tracker.called = true })
+
+        let result = await sut.deleteReport()
+
+        #expect(!result)
+        #expect(!tracker.called)
+    }
+
+    @Test func deleteReportWithNoOnDeleteCallback() async {
+        let sut = makeSUT()
+
+        let result = await sut.deleteReport()
+
+        #expect(result)
+    }
+
+    @Test func deleteReportNetworkError() async {
+        reportRepo.deleteReportResult = .failure(APIError.networkError(underlying: URLError(.notConnectedToInternet)))
+        let sut = makeSUT()
+
+        let result = await sut.deleteReport()
+
+        #expect(!result)
+        #expect(sut.error == "Failed to delete report")
+    }
+
+    @Test func deleteReportUnauthorizedError() async {
+        reportRepo.deleteReportResult = .failure(APIError.unauthorized)
+        let sut = makeSUT()
+
+        let result = await sut.deleteReport()
+
+        #expect(!result)
+        #expect(sut.error == "Failed to delete report")
+    }
+
+    // MARK: - Show Delete Confirmation
+
+    @Test func showDeleteConfirmationStartsFalse() {
+        let sut = makeSUT()
+        #expect(!sut.showDeleteConfirmation)
+    }
+
+    @Test func showDeleteConfirmationCanBeToggled() {
+        let sut = makeSUT()
+        sut.showDeleteConfirmation = true
+        #expect(sut.showDeleteConfirmation)
     }
 
     // MARK: - Initial State

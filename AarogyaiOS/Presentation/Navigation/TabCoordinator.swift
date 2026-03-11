@@ -12,13 +12,13 @@ struct TabCoordinator: View {
     @Binding var selectedTab: AppTab
     let onSignOut: () async -> Void
 
+    @State private var reportsListViewModel: ReportsListViewModel?
+
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("Reports", systemImage: "doc.text", value: .reports) {
                 NavigationStack {
-                    ReportsListView(viewModel: ReportsListViewModel(
-                        fetchReportsUseCase: container.fetchReportsUseCase
-                    ))
+                    ReportsListView(viewModel: resolveReportsListViewModel())
                     .navigationDestination(for: Route.self) { route in
                         if case .reportDetail(let id) = route {
                             ReportDetailView(viewModel: ReportDetailViewModel(
@@ -26,7 +26,10 @@ struct TabCoordinator: View {
                                 fetchReportsUseCase: container.fetchReportsUseCase,
                                 downloadReportUseCase: container.downloadReportUseCase,
                                 deleteReportUseCase: container.deleteReportUseCase,
-                                extractionUseCase: container.extractionUseCase
+                                extractionUseCase: container.extractionUseCase,
+                                onDelete: { [reportsListViewModel] in
+                                    reportsListViewModel?.markNeedsRefresh()
+                                }
                             ))
                         }
                     }
@@ -80,5 +83,16 @@ struct TabCoordinator: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+    }
+
+    private func resolveReportsListViewModel() -> ReportsListViewModel {
+        if let existing = reportsListViewModel {
+            return existing
+        }
+        let viewModel = ReportsListViewModel(
+            fetchReportsUseCase: container.fetchReportsUseCase
+        )
+        reportsListViewModel = viewModel
+        return viewModel
     }
 }

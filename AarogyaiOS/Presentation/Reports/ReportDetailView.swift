@@ -50,6 +50,18 @@ struct ReportDetailView: View {
         } message: {
             Text("This action cannot be undone.")
         }
+        .overlay {
+            if viewModel.isDeleting {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    ProgressView("Deleting...")
+                        .padding(24)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                }
+            }
+        }
+        .allowsHitTesting(!viewModel.isDeleting)
         .task { await viewModel.loadReport() }
     }
 

@@ -17,19 +17,22 @@ final class ReportDetailViewModel {
     private let downloadReportUseCase: DownloadReportUseCase
     private let deleteReportUseCase: DeleteReportUseCase
     private let extractionUseCase: ExtractionUseCase
+    private let onDelete: (@Sendable () -> Void)?
 
     init(
         reportId: String,
         fetchReportsUseCase: FetchReportsUseCase,
         downloadReportUseCase: DownloadReportUseCase,
         deleteReportUseCase: DeleteReportUseCase,
-        extractionUseCase: ExtractionUseCase
+        extractionUseCase: ExtractionUseCase,
+        onDelete: (@Sendable () -> Void)? = nil
     ) {
         self.reportId = reportId
         self.fetchReportsUseCase = fetchReportsUseCase
         self.downloadReportUseCase = downloadReportUseCase
         self.deleteReportUseCase = deleteReportUseCase
         self.extractionUseCase = extractionUseCase
+        self.onDelete = onDelete
     }
 
     func loadReport() async {
@@ -68,6 +71,7 @@ final class ReportDetailViewModel {
 
         do {
             try await deleteReportUseCase.execute(reportId: reportId)
+            onDelete?()
             return true
         } catch {
             self.error = "Failed to delete report"
