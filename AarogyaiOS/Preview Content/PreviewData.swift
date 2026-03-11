@@ -83,6 +83,14 @@ enum PreviewData {
         createdAt: .now.addingTimeInterval(-86400)
     )
 
+    static let emergencyAccessGrant = EmergencyAccessGrant(
+        grantId: "ea_preview_001",
+        emergencyContactId: "ec_preview_001",
+        startsAt: .now,
+        expiresAt: .now.addingTimeInterval(86400),
+        purpose: "Medical emergency - patient unresponsive"
+    )
+
     static let emergencyContact = EmergencyContact(
         id: "ec_preview_001",
         name: "Rahul Sharma",

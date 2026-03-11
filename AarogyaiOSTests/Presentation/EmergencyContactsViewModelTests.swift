@@ -136,4 +136,183 @@ struct EmergencyContactsViewModelTests {
         sut.editContact(contact)
         #expect(sut.editingContact?.isPrimary == false)
     }
+
+    // MARK: - Emergency Access Request Tests
+
+    @Test func startAccessRequestSetsContact() {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        #expect(sut.showAccessRequestForm)
+        #expect(sut.accessRequestContact?.id == contact.id)
+        #expect(sut.accessRequestReason.isEmpty)
+        #expect(sut.accessRequestPatientSub.isEmpty)
+        #expect(sut.accessRequestDoctorSub.isEmpty)
+        #expect(sut.accessRequestDurationHours == nil)
+    }
+
+    @Test func submitAccessRequestSuccessShowsGranted() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Medical emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.showAccessGranted)
+        #expect(sut.grantedAccess != nil)
+        #expect(sut.grantedAccess?.purpose == "Medical emergency")
+        #expect(!sut.showAccessRequestForm)
+        #expect(!sut.isRequestingAccess)
+        #expect(contactRepo.requestEmergencyAccessCallCount == 1)
+    }
+
+    @Test func submitAccessRequestPassesCorrectInput() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Unconscious patient"
+        sut.accessRequestDurationHours = 48
+
+        await sut.submitAccessRequest()
+
+        let input = contactRepo.lastEmergencyAccessInput
+        #expect(input?.patientSub == "patient-sub-1")
+        #expect(input?.emergencyContactPhone == contact.phone)
+        #expect(input?.doctorSub == "doctor-sub-1")
+        #expect(input?.reason == "Unconscious patient")
+        #expect(input?.durationHours == 48)
+    }
+
+    @Test func submitAccessRequestFailureSetsError() async {
+        contactRepo.requestEmergencyAccessResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.showError)
+        #expect(sut.error == "Failed to request emergency access. Please try again.")
+        #expect(sut.grantedAccess == nil)
+        #expect(!sut.showAccessGranted)
+    }
+
+    @Test func submitAccessRequestValidationErrorShowsMessage() async {
+        contactRepo.requestEmergencyAccessResult = .failure(APIError.validationError(fields: []))
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "Invalid request. Please check the details and try again.")
+        #expect(sut.showError)
+    }
+
+    @Test func submitAccessRequestNotFoundErrorShowsMessage() async {
+        contactRepo.requestEmergencyAccessResult = .failure(APIError.notFound)
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "Patient not found. Please verify the patient identifier.")
+    }
+
+    @Test func submitAccessRequestForbiddenErrorShowsMessage() async {
+        contactRepo.requestEmergencyAccessResult = .failure(APIError.forbidden(code: nil))
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "You are not authorized to request emergency access.")
+    }
+
+    @Test func submitAccessRequestMissingPatientSubShowsError() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "Patient identifier is required")
+        #expect(sut.showError)
+        #expect(contactRepo.requestEmergencyAccessCallCount == 0)
+    }
+
+    @Test func submitAccessRequestMissingDoctorSubShowsError() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "Doctor identifier is required")
+        #expect(sut.showError)
+        #expect(contactRepo.requestEmergencyAccessCallCount == 0)
+    }
+
+    @Test func submitAccessRequestMissingReasonShowsError() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+
+        await sut.submitAccessRequest()
+
+        #expect(sut.error == "Reason is required for emergency access")
+        #expect(sut.showError)
+        #expect(contactRepo.requestEmergencyAccessCallCount == 0)
+    }
+
+    @Test func submitAccessRequestWithoutContactDoesNothing() async {
+        let sut = makeSUT()
+
+        await sut.submitAccessRequest()
+
+        #expect(contactRepo.requestEmergencyAccessCallCount == 0)
+        #expect(!sut.showError)
+    }
+
+    @Test func dismissAccessGrantedClearsState() async {
+        let sut = makeSUT()
+        let contact = EmergencyContact.stub
+        sut.startAccessRequest(for: contact)
+        sut.accessRequestPatientSub = "patient-sub-1"
+        sut.accessRequestDoctorSub = "doctor-sub-1"
+        sut.accessRequestReason = "Emergency"
+
+        await sut.submitAccessRequest()
+        #expect(sut.showAccessGranted)
+
+        sut.dismissAccessGranted()
+        #expect(!sut.showAccessGranted)
+        #expect(sut.grantedAccess == nil)
+        #expect(sut.accessRequestContact == nil)
+    }
 }

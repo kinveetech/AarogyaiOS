@@ -88,6 +88,16 @@ extension EmergencyContact {
     )
 }
 
+extension EmergencyAccessGrant {
+    static let stub = EmergencyAccessGrant(
+        grantId: "grant-ea-1",
+        emergencyContactId: "contact-1",
+        startsAt: .now,
+        expiresAt: .now.addingTimeInterval(3600 * 24),
+        purpose: "Medical emergency"
+    )
+}
+
 extension EmergencyAccessAuditEntry {
     static let stub = EmergencyAccessAuditEntry(
         id: "audit-1",

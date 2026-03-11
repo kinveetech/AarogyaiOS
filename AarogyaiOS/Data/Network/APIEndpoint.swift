@@ -26,6 +26,7 @@ enum APIEndpoint: Sendable {
     case deleteReport(id: String)
     case uploadUrl
     case downloadUrl
+    case verifiedDownloadUrl
     case extractionStatus(id: String)
     case triggerExtraction(id: String)
 
@@ -59,7 +60,7 @@ enum APIEndpoint: Sendable {
         case .socialAuthorize, .socialToken, .otpRequest, .otpVerify,
              .tokenRefresh, .tokenRevoke, .registerUser, .verifyAadhaar,
              .exportData, .requestDeletion, .createReport, .uploadUrl,
-             .downloadUrl, .triggerExtraction, .createAccessGrant,
+             .downloadUrl, .verifiedDownloadUrl, .triggerExtraction, .createAccessGrant,
              .createEmergencyContact, .requestEmergencyAccess,
              .registerDevice:
             .post
@@ -99,6 +100,7 @@ enum APIEndpoint: Sendable {
         case .createReport: "/api/v1/reports"
         case .uploadUrl: "/api/v1/reports/upload-url"
         case .downloadUrl: "/api/v1/reports/download-url"
+        case .verifiedDownloadUrl: "/api/v1/reports/download-url/verified"
         case .extractionStatus(let id): "/api/v1/reports/\(id)/extraction-status"
         case .triggerExtraction(let id): "/api/v1/reports/\(id)/extraction/trigger"
 
@@ -113,7 +115,7 @@ enum APIEndpoint: Sendable {
             "/api/v1/emergency-contacts/\(id)"
 
         // Emergency Access
-        case .requestEmergencyAccess: "/api/v1/emergency-access/request"
+        case .requestEmergencyAccess: "/api/v1/emergency-access/requests"
         case .emergencyAccessAudit: "/api/v1/emergency-access/audit"
 
         // Consents

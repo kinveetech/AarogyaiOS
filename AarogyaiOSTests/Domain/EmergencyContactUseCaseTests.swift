@@ -61,4 +61,39 @@ struct ManageEmergencyContactUseCaseTests {
         #expect(repo.deleteContactCallCount == 1)
         #expect(repo.lastDeletedContactId == "contact-1")
     }
+
+    @Test func requestEmergencyAccessCallsRepository() async throws {
+        let input = EmergencyAccessInput(
+            patientSub: "patient-1",
+            emergencyContactPhone: "+919876543210",
+            doctorSub: "doctor-1",
+            reason: "Medical emergency",
+            durationHours: 24
+        )
+        let grant = try await sut.requestEmergencyAccess(input: input)
+        #expect(grant.grantId == "grant-ea-1")
+        #expect(repo.requestEmergencyAccessCallCount == 1)
+        #expect(repo.lastEmergencyAccessInput?.patientSub == "patient-1")
+        #expect(repo.lastEmergencyAccessInput?.emergencyContactPhone == "+919876543210")
+        #expect(repo.lastEmergencyAccessInput?.doctorSub == "doctor-1")
+        #expect(repo.lastEmergencyAccessInput?.reason == "Medical emergency")
+        #expect(repo.lastEmergencyAccessInput?.durationHours == 24)
+    }
+
+    @Test func requestEmergencyAccessPropagatesError() async {
+        repo.requestEmergencyAccessResult = .failure(APIError.serverError(status: 500))
+        let input = EmergencyAccessInput(
+            patientSub: "patient-1",
+            emergencyContactPhone: "+919876543210",
+            doctorSub: "doctor-1",
+            reason: "Emergency",
+            durationHours: nil
+        )
+        do {
+            _ = try await sut.requestEmergencyAccess(input: input)
+            Issue.record("Expected error to be thrown")
+        } catch {
+            // Expected
+        }
+    }
 }
