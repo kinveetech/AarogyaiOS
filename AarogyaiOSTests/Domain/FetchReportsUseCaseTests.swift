@@ -28,6 +28,33 @@ struct FetchReportsUseCaseTests {
             _ = try await sut.execute()
         }
     }
+
+    @Test func executeWithCacheReturnsNetworkResult() async throws {
+        let result = try await sut.executeWithCache()
+        #expect(result.data.items.count == 1)
+        #expect(!result.isCached)
+        #expect(reportRepo.getReportsWithCacheCallCount == 1)
+    }
+
+    @Test func executeWithCacheReturnsCachedResult() async throws {
+        let cached = CachedResult(
+            data: PaginatedResult(items: [.stub, .stub], page: 1, pageSize: 20, totalCount: 2),
+            source: CachedResult<PaginatedResult<Report>>.DataSource.cache,
+            lastFetchedAt: Date.now.addingTimeInterval(-60)
+        )
+        reportRepo.getReportsWithCacheResult = .success(cached)
+
+        let result = try await sut.executeWithCache()
+        #expect(result.data.items.count == 2)
+        #expect(result.isCached)
+    }
+
+    @Test func executeWithCachePropagatesError() async {
+        reportRepo.getReportsWithCacheResult = .failure(APIError.serverError(status: 500))
+        await #expect(throws: APIError.self) {
+            _ = try await sut.executeWithCache()
+        }
+    }
 }
 
 @Suite("DeleteReportUseCase")
