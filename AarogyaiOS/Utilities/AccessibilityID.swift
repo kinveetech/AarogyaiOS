@@ -82,7 +82,13 @@ enum AccessibilityID {
         static let lastNameField = "profile.lastName"
         static let emailField = "profile.email"
         static let phoneField = "profile.phone"
+        static let bloodGroupPicker = "profile.bloodGroup"
+        static let dateOfBirthPicker = "profile.dateOfBirth"
+        static let genderPicker = "profile.gender"
+        static let addressField = "profile.address"
         static let saveButton = "profile.save"
+        static let successBanner = "profile.successBanner"
+        static func validationError(_ field: String) -> String { "profile.validation.\(field)" }
     }
 
     // MARK: - Consents
