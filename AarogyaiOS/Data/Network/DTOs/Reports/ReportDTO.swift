@@ -89,3 +89,16 @@ struct DownloadUrlResponseDTO: Decodable, Sendable {
     let expiresAt: String
     let checksumSha256: String?
 }
+
+struct VerifiedDownloadUrlRequestDTO: Encodable, Sendable {
+    let reportId: String
+    let expiryMinutes: Int?
+}
+
+struct VerifiedDownloadUrlResponseDTO: Decodable, Sendable {
+    let reportId: String
+    let objectKey: String
+    let downloadUrl: String
+    let expiresAt: String
+    let checksumVerified: Bool
+}

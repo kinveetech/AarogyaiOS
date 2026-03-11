@@ -7,6 +7,7 @@ protocol ReportRepository: Sendable {
     func deleteReport(id: String) async throws
     func getUploadURL(fileName: String, contentType: String) async throws -> PresignedUpload
     func getDownloadURL(reportId: String) async throws -> URL
+    func getVerifiedDownloadURL(reportId: String) async throws -> VerifiedDownload
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction
     func triggerExtraction(reportId: String) async throws
 }
