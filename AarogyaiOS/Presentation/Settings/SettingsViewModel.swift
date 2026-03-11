@@ -5,6 +5,8 @@ import OSLog
 @MainActor
 final class SettingsViewModel {
     var isExporting = false
+    var exportSuccess = false
+    var showExportConfirmation = false
     var error: String?
     var showDeleteConfirmation = false
 
@@ -49,15 +51,30 @@ final class SettingsViewModel {
         await onSignOut()
     }
 
+    func confirmExportData() {
+        showExportConfirmation = true
+    }
+
     func exportData() async {
         isExporting = true
+        exportSuccess = false
+        error = nil
         do {
             try await exportDataUseCase.execute()
+            exportSuccess = true
+            Logger.data.info("Data export requested successfully")
+        } catch let apiError as APIError {
+            self.error = mapExportError(apiError)
+            Logger.data.error("Export data failed: \(apiError)")
         } catch {
-            self.error = "Failed to export data"
+            self.error = "Failed to export data. Please try again."
             Logger.data.error("Export data failed: \(error)")
         }
         isExporting = false
+    }
+
+    func dismissExportSuccess() {
+        exportSuccess = false
     }
 
     func requestAccountDeletion() async {
@@ -67,6 +84,23 @@ final class SettingsViewModel {
         } catch {
             self.error = "Failed to request account deletion"
             Logger.data.error("Account deletion failed: \(error)")
+        }
+    }
+
+    // MARK: - Private
+
+    private func mapExportError(_ apiError: APIError) -> String {
+        switch apiError {
+        case .unauthorized, .tokenRefreshFailed:
+            "Session expired. Please sign in again."
+        case .rateLimited:
+            "Too many requests. Please try again later."
+        case .serverError:
+            "Server error. Please try again later."
+        case .networkError:
+            "Network error. Check your connection and try again."
+        default:
+            "Failed to export data. Please try again."
         }
     }
 }
