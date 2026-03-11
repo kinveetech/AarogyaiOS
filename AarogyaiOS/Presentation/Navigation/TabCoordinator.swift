@@ -19,6 +19,17 @@ struct TabCoordinator: View {
                     ReportsListView(viewModel: ReportsListViewModel(
                         fetchReportsUseCase: container.fetchReportsUseCase
                     ))
+                    .navigationDestination(for: Route.self) { route in
+                        if case .reportDetail(let id) = route {
+                            ReportDetailView(viewModel: ReportDetailViewModel(
+                                reportId: id,
+                                fetchReportsUseCase: container.fetchReportsUseCase,
+                                downloadReportUseCase: container.downloadReportUseCase,
+                                deleteReportUseCase: container.deleteReportUseCase,
+                                extractionUseCase: container.extractionUseCase
+                            ))
+                        }
+                    }
                 }
             }
 

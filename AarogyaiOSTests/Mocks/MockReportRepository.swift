@@ -39,10 +39,13 @@ final class MockReportRepository: ReportRepository, @unchecked Sendable {
     var getUploadURLCallCount = 0
     var getDownloadURLCallCount = 0
     var getVerifiedDownloadURLCallCount = 0
+    var getExtractionStatusCallCount = 0
+    var triggerExtractionCallCount = 0
     var invalidateCacheCallCount = 0
 
     var lastGetReportsPage: Int?
     var lastDeletedReportId: String?
+    var lastExtractionReportId: String?
 
     func getReports(
         page: Int, pageSize: Int, type: ReportType?,
@@ -101,10 +104,14 @@ final class MockReportRepository: ReportRepository, @unchecked Sendable {
     }
 
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction {
-        try getExtractionStatusResult.get()
+        getExtractionStatusCallCount += 1
+        lastExtractionReportId = reportId
+        return try getExtractionStatusResult.get()
     }
 
     func triggerExtraction(reportId: String) async throws {
+        triggerExtractionCallCount += 1
+        lastExtractionReportId = reportId
         try triggerExtractionResult.get()
     }
 

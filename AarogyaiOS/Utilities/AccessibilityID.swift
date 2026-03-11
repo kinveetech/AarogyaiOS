@@ -39,6 +39,15 @@ enum AccessibilityID {
         static let labName = "reportDetail.lab"
     }
 
+    // MARK: - Extraction
+    enum Extraction {
+        static let section = "extraction.section"
+        static let statusBadge = "extraction.statusBadge"
+        static let triggerButton = "extraction.trigger.button"
+        static let parameterCount = "extraction.parameterCount"
+        static let confidence = "extraction.confidence"
+    }
+
     // MARK: - Access Grants
     enum AccessGrants {
         static let emptyState = "accessGrants.emptyState"
