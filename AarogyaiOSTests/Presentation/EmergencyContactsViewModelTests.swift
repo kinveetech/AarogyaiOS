@@ -28,14 +28,35 @@ struct EmergencyContactsViewModelTests {
         #expect(sut.error == "Failed to load contacts")
     }
 
+    @Test func confirmDeleteContactShowsConfirmation() async {
+        let sut = makeSUT()
+        await sut.loadContacts()
+        let contact = sut.contacts[0]
+
+        sut.confirmDeleteContact(contact)
+        #expect(sut.showDeleteConfirmation)
+        #expect(sut.contactToDelete?.id == contact.id)
+    }
+
     @Test func deleteContactRemovesFromList() async {
         let sut = makeSUT()
         await sut.loadContacts()
         let contact = sut.contacts[0]
 
-        await sut.deleteContact(contact)
+        sut.confirmDeleteContact(contact)
+        await sut.deleteContact()
         #expect(sut.contacts.isEmpty)
         #expect(contactRepo.deleteContactCallCount == 1)
+        #expect(sut.contactToDelete == nil)
+    }
+
+    @Test func deleteContactWithoutConfirmationDoesNothing() async {
+        let sut = makeSUT()
+        await sut.loadContacts()
+
+        await sut.deleteContact()
+        #expect(sut.contacts.count == 1)
+        #expect(contactRepo.deleteContactCallCount == 0)
     }
 
     @Test func deleteContactFailureSetsError() async {
@@ -43,8 +64,10 @@ struct EmergencyContactsViewModelTests {
         await sut.loadContacts()
         contactRepo.deleteContactResult = .failure(APIError.serverError(status: 500))
 
-        await sut.deleteContact(sut.contacts[0])
+        sut.confirmDeleteContact(sut.contacts[0])
+        await sut.deleteContact()
         #expect(sut.error == "Failed to delete contact")
+        #expect(sut.showError)
         #expect(sut.contacts.count == 1)
     }
 
