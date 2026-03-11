@@ -15,6 +15,9 @@ enum APIError: Error, Sendable {
     case decodingError(underlying: any Error)
     case tokenRefreshFailed
     case unknown(status: Int)
+    case alreadyVerified
+    case invalidAadhaar
+    case aadhaarMismatch
 
     var isAuthError: Bool {
         switch self {

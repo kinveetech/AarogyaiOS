@@ -70,6 +70,7 @@ enum AccessibilityID {
         static let profileRow = "settings.profile"
         static let consentsRow = "settings.consents"
         static let notificationsRow = "settings.notifications"
+        static let aadhaarVerificationRow = "settings.aadhaarVerification"
         static let exportButton = "settings.export"
         static let deleteAccountButton = "settings.deleteAccount"
         static let signOutButton = "settings.signOut"
@@ -99,5 +100,17 @@ enum AccessibilityID {
     // MARK: - Notification Preferences
     enum Notifications {
         static let saveButton = "notifications.save"
+    }
+
+    // MARK: - Aadhaar Verification
+    enum AadhaarVerification {
+        static let verifiedIcon = "aadhaar.verified.icon"
+        static let verifiedTitle = "aadhaar.verified.title"
+        static let maskedToken = "aadhaar.maskedToken"
+        static let userDetails = "aadhaar.userDetails"
+        static let unverifiedIcon = "aadhaar.unverified.icon"
+        static let unverifiedTitle = "aadhaar.unverified.title"
+        static let tokenField = "aadhaar.tokenField"
+        static let verifyButton = "aadhaar.verify.button"
     }
 }

@@ -15,6 +15,7 @@ struct SettingsViewModelTests {
         SettingsViewModel(
             getCurrentUserUseCase: GetCurrentUserUseCase(userRepository: userRepo),
             updateProfileUseCase: UpdateProfileUseCase(userRepository: userRepo),
+            verifyAadhaarUseCase: VerifyAadhaarUseCase(userRepository: userRepo),
             manageConsentsUseCase: ManageConsentsUseCase(consentRepository: consentRepo),
             manageNotificationsUseCase: ManageNotificationsUseCase(notificationRepository: notifRepo),
             logoutUseCase: LogoutUseCase(authRepository: authRepo, tokenStore: tokenStore),

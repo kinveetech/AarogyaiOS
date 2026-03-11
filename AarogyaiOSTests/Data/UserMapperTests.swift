@@ -19,7 +19,9 @@ struct UserMapperTests {
             dateOfBirth: "2000-01-15",
             gender: "male",
             roles: ["patient"],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -48,7 +50,9 @@ struct UserMapperTests {
             dateOfBirth: nil,
             gender: nil,
             roles: ["patient"],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -67,7 +71,9 @@ struct UserMapperTests {
             dateOfBirth: nil,
             gender: nil,
             roles: ["doctor", "patient"],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -86,7 +92,9 @@ struct UserMapperTests {
             dateOfBirth: nil,
             gender: nil,
             roles: ["unknown_role"],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -105,7 +113,9 @@ struct UserMapperTests {
             dateOfBirth: nil,
             gender: nil,
             roles: [],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -124,7 +134,9 @@ struct UserMapperTests {
             dateOfBirth: nil,
             gender: nil,
             roles: ["patient"],
-            registrationStatus: "approved"
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -132,6 +144,122 @@ struct UserMapperTests {
         #expect(user.bloodGroup == nil)
         #expect(user.dateOfBirth == nil)
         #expect(user.gender == nil)
+    }
+
+    // MARK: - Aadhaar fields mapping
+
+    @Test func toDomainMapsAadhaarVerifiedTrue() {
+        let dto = UserProfileResponse(
+            sub: "user-123",
+            firstName: "Test",
+            lastName: "User",
+            email: "test@example.com",
+            phone: "+911234567890",
+            address: nil,
+            bloodGroup: nil,
+            dateOfBirth: nil,
+            gender: nil,
+            roles: ["patient"],
+            registrationStatus: "approved",
+            isAadhaarVerified: true,
+            aadhaarRefToken: "REF-TOKEN-123"
+        )
+
+        let user = UserMapper.toDomain(dto)
+        #expect(user.isAadhaarVerified)
+        #expect(user.aadhaarRefToken == "REF-TOKEN-123")
+    }
+
+    @Test func toDomainMapsAadhaarVerifiedFalse() {
+        let dto = UserProfileResponse(
+            sub: "user-123",
+            firstName: "Test",
+            lastName: "User",
+            email: "test@example.com",
+            phone: nil,
+            address: nil,
+            bloodGroup: nil,
+            dateOfBirth: nil,
+            gender: nil,
+            roles: ["patient"],
+            registrationStatus: "approved",
+            isAadhaarVerified: false,
+            aadhaarRefToken: nil
+        )
+
+        let user = UserMapper.toDomain(dto)
+        #expect(!user.isAadhaarVerified)
+        #expect(user.aadhaarRefToken == nil)
+    }
+
+    @Test func toDomainDefaultsAadhaarVerifiedToFalseWhenNil() {
+        let dto = UserProfileResponse(
+            sub: "user-123",
+            firstName: "Test",
+            lastName: "User",
+            email: "test@example.com",
+            phone: nil,
+            address: nil,
+            bloodGroup: nil,
+            dateOfBirth: nil,
+            gender: nil,
+            roles: ["patient"],
+            registrationStatus: "approved",
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
+        )
+
+        let user = UserMapper.toDomain(dto)
+        #expect(!user.isAadhaarVerified)
+    }
+
+    @Test func toDomainMapsAadhaarVerifyResponse() {
+        let dto = AadhaarVerifyResponse(
+            sub: "user-123",
+            firstName: "Test",
+            lastName: "User",
+            email: "test@example.com",
+            phone: "+911234567890",
+            address: nil,
+            bloodGroup: "O+",
+            dateOfBirth: nil,
+            gender: "male",
+            roles: ["patient"],
+            registrationStatus: "approved",
+            isAadhaarVerified: true,
+            aadhaarRefToken: "AADHAAR-REF-456"
+        )
+
+        let user = UserMapper.toDomain(dto)
+
+        #expect(user.id == "user-123")
+        #expect(user.firstName == "Test")
+        #expect(user.isAadhaarVerified)
+        #expect(user.aadhaarRefToken == "AADHAAR-REF-456")
+        #expect(user.bloodGroup == .oPositive)
+        #expect(user.gender == .male)
+    }
+
+    @Test func toDomainMapsAadhaarVerifyResponseNilPhone() {
+        let dto = AadhaarVerifyResponse(
+            sub: "user-123",
+            firstName: "Test",
+            lastName: "User",
+            email: "test@example.com",
+            phone: nil,
+            address: nil,
+            bloodGroup: nil,
+            dateOfBirth: nil,
+            gender: nil,
+            roles: ["patient"],
+            registrationStatus: "approved",
+            isAadhaarVerified: true,
+            aadhaarRefToken: nil
+        )
+
+        let user = UserMapper.toDomain(dto)
+        #expect(user.phone == "")
+        #expect(user.isAadhaarVerified)
     }
 
     // MARK: - RegisterUserResponse mapping
@@ -149,7 +277,9 @@ struct UserMapperTests {
             bloodGroup: "A+",
             dateOfBirth: nil,
             gender: "female",
-            consentsGranted: ["profile_management"]
+            consentsGranted: ["profile_management"],
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)
@@ -178,7 +308,9 @@ struct UserMapperTests {
             bloodGroup: nil,
             dateOfBirth: nil,
             gender: nil,
-            consentsGranted: nil
+            consentsGranted: nil,
+            isAadhaarVerified: nil,
+            aadhaarRefToken: nil
         )
 
         let user = UserMapper.toDomain(dto)

@@ -12,6 +12,8 @@ struct UserProfileResponse: Decodable, Sendable {
     let gender: String?
     let roles: [String]
     let registrationStatus: String
+    let isAadhaarVerified: Bool?
+    let aadhaarRefToken: String?
 }
 
 struct DoctorProfileDTO: Decodable, Sendable {
@@ -86,6 +88,8 @@ struct RegisterUserResponse: Decodable, Sendable {
     let dateOfBirth: String?
     let gender: String?
     let consentsGranted: [String]?
+    let isAadhaarVerified: Bool?
+    let aadhaarRefToken: String?
 }
 
 struct RegistrationStatusResponse: Decodable, Sendable {
