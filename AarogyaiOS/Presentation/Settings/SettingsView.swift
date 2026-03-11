@@ -24,13 +24,26 @@ struct SettingsView: View {
                 .accessibilityIdentifier(AccessibilityID.Settings.notificationsRow)
             }
 
-            Section("Data") {
+            Section {
                 Button {
-                    Task { await viewModel.exportData() }
+                    viewModel.confirmExportData()
                 } label: {
-                    Label("Export My Data", systemImage: "square.and.arrow.up")
+                    HStack {
+                        Label("Export My Data", systemImage: "square.and.arrow.up")
+                        Spacer()
+                        if viewModel.isExporting {
+                            ProgressView()
+                                .accessibilityIdentifier(AccessibilityID.Settings.exportProgress)
+                        }
+                    }
                 }
                 .disabled(viewModel.isExporting)
+                .accessibilityIdentifier(AccessibilityID.Settings.exportButton)
+            } header: {
+                Text("Data")
+            } footer: {
+                Text("Request a copy of all your personal and health data under DPDPA.")
+                    .accessibilityIdentifier(AccessibilityID.Settings.exportFooter)
             }
 
             Section("Danger Zone") {
@@ -81,6 +94,29 @@ struct SettingsView: View {
                     manageNotificationsUseCase: viewModel.manageNotificationsUseCase
                 ))
             }
+        }
+        .alert("Export My Data", isPresented: $viewModel.showExportConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Export") {
+                Task { await viewModel.exportData() }
+            }
+            .accessibilityIdentifier(AccessibilityID.Settings.exportConfirmButton)
+        } message: {
+            Text(
+                """
+                We will prepare a copy of your personal and health data. \
+                You will receive a notification when your export is ready \
+                to download.
+                """
+            )
+        }
+        .alert("Export Requested", isPresented: $viewModel.exportSuccess) {
+            Button("OK") {
+                viewModel.dismissExportSuccess()
+            }
+            .accessibilityIdentifier(AccessibilityID.Settings.exportSuccessOKButton)
+        } message: {
+            Text("Your data export has been requested. You will be notified when it is ready.")
         }
         .alert("Delete Account", isPresented: $viewModel.showDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}

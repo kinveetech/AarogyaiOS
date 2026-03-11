@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 import Testing
 @testable import AarogyaiOS
 
@@ -21,29 +22,171 @@ struct SettingsViewModelTests {
             logoutUseCase: LogoutUseCase(authRepository: authRepo, tokenStore: tokenStore),
             exportDataUseCase: ExportDataUseCase(userRepository: userRepo),
             requestAccountDeletionUseCase: RequestAccountDeletionUseCase(userRepository: userRepo),
-            onSignOut: {}
+            onSignOut: { signOutCalled?() }
         )
     }
 
-    @Test func exportDataSuccess() async {
+    // MARK: - Export Data Confirmation
+
+    @Test func confirmExportDataShowsConfirmation() {
+        let sut = makeSUT()
+        #expect(!sut.showExportConfirmation)
+        sut.confirmExportData()
+        #expect(sut.showExportConfirmation)
+    }
+
+    // MARK: - Export Data Success
+
+    @Test func exportDataSuccessSetsExportSuccess() async {
         let sut = makeSUT()
         await sut.exportData()
         #expect(userRepo.exportDataCallCount == 1)
         #expect(!sut.isExporting)
+        #expect(sut.exportSuccess)
         #expect(sut.error == nil)
     }
 
-    @Test func exportDataFailure() async {
+    @Test func exportDataClearsErrorOnNewAttempt() async {
         userRepo.exportDataResult = .failure(APIError.serverError(status: 500))
         let sut = makeSUT()
         await sut.exportData()
-        #expect(sut.error == "Failed to export data")
+        #expect(sut.error != nil)
+
+        userRepo.exportDataResult = .success(())
+        await sut.exportData()
+        #expect(sut.error == nil)
+        #expect(sut.exportSuccess)
     }
 
-    @Test func requestAccountDeletion() async {
+    @Test func exportDataClearsPreviousSuccessOnNewAttempt() async {
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.exportSuccess)
+
+        userRepo.exportDataResult = .failure(APIError.serverError(status: 500))
+        await sut.exportData()
+        #expect(!sut.exportSuccess)
+    }
+
+    @Test func exportDataSetsIsExportingFalseAfterCompletion() async {
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(!sut.isExporting)
+    }
+
+    // MARK: - Export Data Error Handling
+
+    @Test func exportDataHandlesServerError() async {
+        userRepo.exportDataResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Server error. Please try again later.")
+        #expect(!sut.exportSuccess)
+    }
+
+    @Test func exportDataHandlesNetworkError() async {
+        userRepo.exportDataResult = .failure(
+            APIError.networkError(underlying: URLError(.notConnectedToInternet))
+        )
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Network error. Check your connection and try again.")
+    }
+
+    @Test func exportDataHandlesUnauthorizedError() async {
+        userRepo.exportDataResult = .failure(APIError.unauthorized)
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Session expired. Please sign in again.")
+    }
+
+    @Test func exportDataHandlesTokenRefreshFailed() async {
+        userRepo.exportDataResult = .failure(APIError.tokenRefreshFailed)
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Session expired. Please sign in again.")
+    }
+
+    @Test func exportDataHandlesRateLimited() async {
+        userRepo.exportDataResult = .failure(APIError.rateLimited(retryAfter: 60))
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Too many requests. Please try again later.")
+    }
+
+    @Test func exportDataHandlesUnknownAPIError() async {
+        userRepo.exportDataResult = .failure(APIError.unknown(status: 418))
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Failed to export data. Please try again.")
+    }
+
+    @Test func exportDataHandlesNonAPIError() async {
+        struct CustomError: Error {}
+        userRepo.exportDataResult = .failure(CustomError())
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.error == "Failed to export data. Please try again.")
+        #expect(!sut.exportSuccess)
+    }
+
+    // MARK: - Dismiss Export Success
+
+    @Test func dismissExportSuccessClearsFlag() async {
+        let sut = makeSUT()
+        await sut.exportData()
+        #expect(sut.exportSuccess)
+        sut.dismissExportSuccess()
+        #expect(!sut.exportSuccess)
+    }
+
+    // MARK: - Account Deletion
+
+    @Test func requestAccountDeletionCallsRepository() async {
         let sut = makeSUT()
         await sut.requestAccountDeletion()
         #expect(userRepo.requestDeletionCallCount == 1)
+    }
+
+    @Test func requestAccountDeletionSignsOutOnSuccess() async {
+        let signedOut = Mutex(false)
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        await sut.requestAccountDeletion()
+        #expect(signedOut.withLock { $0 })
+    }
+
+    @Test func requestAccountDeletionSetsErrorOnFailure() async {
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        await sut.requestAccountDeletion()
+        #expect(sut.error == "Failed to request account deletion")
+    }
+
+    @Test func requestAccountDeletionDoesNotSignOutOnFailure() async {
+        let signedOut = Mutex(false)
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        await sut.requestAccountDeletion()
+        #expect(!signedOut.withLock { $0 })
+    }
+
+    // MARK: - Sign Out
+
+    @Test func signOutCallsLogoutAndOnSignOut() async {
+        let signedOut = Mutex(false)
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        await sut.signOut()
+        #expect(authRepo.revokeTokenCallCount == 1)
+        #expect(tokenStore.clearAllCallCount == 1)
+        #expect(signedOut.withLock { $0 })
+    }
+
+    @Test func signOutStillCallsOnSignOutWhenLogoutFails() async {
+        let signedOut = Mutex(false)
+        tokenStore.clearAllResult = .failure(APIError.networkError(underlying: URLError(.notConnectedToInternet)))
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        await sut.signOut()
+        #expect(signedOut.withLock { $0 })
     }
 }
 
