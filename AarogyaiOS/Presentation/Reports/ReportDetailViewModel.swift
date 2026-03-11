@@ -10,22 +10,26 @@ final class ReportDetailViewModel {
     var downloadURL: URL?
     var showDeleteConfirmation = false
     var isDeleting = false
+    var extractionViewModel: ExtractionStatusViewModel?
 
     private let reportId: String
     private let fetchReportsUseCase: FetchReportsUseCase
     private let downloadReportUseCase: DownloadReportUseCase
     private let deleteReportUseCase: DeleteReportUseCase
+    private let extractionUseCase: ExtractionUseCase
 
     init(
         reportId: String,
         fetchReportsUseCase: FetchReportsUseCase,
         downloadReportUseCase: DownloadReportUseCase,
-        deleteReportUseCase: DeleteReportUseCase
+        deleteReportUseCase: DeleteReportUseCase,
+        extractionUseCase: ExtractionUseCase
     ) {
         self.reportId = reportId
         self.fetchReportsUseCase = fetchReportsUseCase
         self.downloadReportUseCase = downloadReportUseCase
         self.deleteReportUseCase = deleteReportUseCase
+        self.extractionUseCase = extractionUseCase
     }
 
     func loadReport() async {
@@ -35,6 +39,12 @@ final class ReportDetailViewModel {
         do {
             let result = try await fetchReportsUseCase.execute(search: reportId)
             report = result.items.first
+            if report != nil {
+                extractionViewModel = ExtractionStatusViewModel(
+                    reportId: reportId,
+                    extractionUseCase: extractionUseCase
+                )
+            }
         } catch {
             self.error = "Failed to load report details"
             Logger.data.error("Load report detail failed: \(error)")

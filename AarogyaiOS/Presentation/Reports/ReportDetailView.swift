@@ -57,6 +57,9 @@ struct ReportDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 reportHeader(report)
+                if let extractionVM = viewModel.extractionViewModel {
+                    ExtractionStatusView(viewModel: extractionVM)
+                }
                 if !report.parameters.isEmpty {
                     parametersSection(report.parameters)
                 }

@@ -136,6 +136,56 @@ extension EmergencyAccessAuditEntry {
     )
 }
 
+extension ReportExtraction {
+    static let stubCompleted = ReportExtraction(
+        status: .completed,
+        extractionMethod: "ai",
+        structuringModel: "gpt-4",
+        extractedParameterCount: 12,
+        overallConfidence: 0.95,
+        pageCount: 2,
+        extractedAt: Date(timeIntervalSince1970: 1_700_000_000),
+        errorMessage: nil,
+        attemptCount: 1
+    )
+
+    static let stubPending = ReportExtraction(
+        status: .pending,
+        extractionMethod: nil,
+        structuringModel: nil,
+        extractedParameterCount: 0,
+        overallConfidence: nil,
+        pageCount: nil,
+        extractedAt: nil,
+        errorMessage: nil,
+        attemptCount: 0
+    )
+
+    static let stubFailed = ReportExtraction(
+        status: .failed,
+        extractionMethod: "ai",
+        structuringModel: nil,
+        extractedParameterCount: 0,
+        overallConfidence: nil,
+        pageCount: nil,
+        extractedAt: nil,
+        errorMessage: "OCR processing failed for this document",
+        attemptCount: 2
+    )
+
+    static let stubInProgress = ReportExtraction(
+        status: .inProgress,
+        extractionMethod: "ai",
+        structuringModel: nil,
+        extractedParameterCount: 0,
+        overallConfidence: nil,
+        pageCount: nil,
+        extractedAt: nil,
+        errorMessage: nil,
+        attemptCount: 1
+    )
+}
+
 extension NotificationPreferences {
     static let stub = NotificationPreferences(
         reportUploaded: ChannelPreferences(push: true, email: true, sms: false),

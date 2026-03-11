@@ -28,6 +28,25 @@ extension StatusBadge {
         }
     }
 
+    init(extractionStatus: ExtractionStatus) {
+        self.text = switch extractionStatus {
+        case .pending: "Pending"
+        case .inProgress: "Processing"
+        case .completed: "Completed"
+        case .failed: "Failed"
+        }
+        self.color = switch extractionStatus {
+        case .completed:
+            Color.Fallback.statusNormal
+        case .failed:
+            Color.Fallback.statusCritical
+        case .inProgress:
+            Color.Fallback.statusWarning
+        case .pending:
+            Color.Fallback.statusInfo
+        }
+    }
+
     init(accessGrantStatus: AccessGrantStatus) {
         self.text = accessGrantStatus.rawValue.capitalized
         self.color = switch accessGrantStatus {

@@ -48,6 +48,7 @@ final class DependencyContainer {
     let uploadReportUseCase: UploadReportUseCase
     let deleteReportUseCase: DeleteReportUseCase
     let downloadReportUseCase: DownloadReportUseCase
+    let extractionUseCase: ExtractionUseCase
 
     // MARK: - Use Cases — Access Grants
 
@@ -111,6 +112,7 @@ final class DependencyContainer {
             uploadReportUseCase = deps.uploadReport
             deleteReportUseCase = deps.deleteReport
             downloadReportUseCase = deps.downloadReport
+            extractionUseCase = deps.extraction
             fetchAccessGrantsUseCase = deps.fetchGrants
             createAccessGrantUseCase = deps.createGrant
             revokeAccessGrantUseCase = deps.revokeGrant
@@ -150,6 +152,7 @@ final class DependencyContainer {
             uploadReportUseCase = deps.uploadReport
             deleteReportUseCase = deps.deleteReport
             downloadReportUseCase = deps.downloadReport
+            extractionUseCase = deps.extraction
             fetchAccessGrantsUseCase = deps.fetchGrants
             createAccessGrantUseCase = deps.createGrant
             revokeAccessGrantUseCase = deps.revokeGrant
@@ -191,6 +194,7 @@ private struct DependencyBundle {
     let uploadReport: UploadReportUseCase
     let deleteReport: DeleteReportUseCase
     let downloadReport: DownloadReportUseCase
+    let extraction: ExtractionUseCase
     let fetchGrants: FetchAccessGrantsUseCase
     let createGrant: CreateAccessGrantUseCase
     let revokeGrant: RevokeAccessGrantUseCase
@@ -250,6 +254,7 @@ extension DependencyContainer {
             ),
             deleteReport: DeleteReportUseCase(reportRepository: reportRepo),
             downloadReport: DownloadReportUseCase(reportRepository: reportRepo),
+            extraction: ExtractionUseCase(reportRepository: reportRepo),
             fetchGrants: FetchAccessGrantsUseCase(accessGrantRepository: grantRepo),
             createGrant: CreateAccessGrantUseCase(accessGrantRepository: grantRepo),
             revokeGrant: RevokeAccessGrantUseCase(accessGrantRepository: grantRepo),
@@ -335,6 +340,7 @@ extension DependencyContainer {
             downloadReport: DownloadReportUseCase(
                 reportRepository: reportRepo
             ),
+            extraction: ExtractionUseCase(reportRepository: reportRepo),
             fetchGrants: FetchAccessGrantsUseCase(
                 accessGrantRepository: grantRepo
             ),
