@@ -34,10 +34,22 @@ struct TabCoordinator: View {
 
             Tab("Emergency", systemImage: "phone.fill", value: .emergency) {
                 NavigationStack {
-                    EmergencyContactsView(viewModel: EmergencyContactsViewModel(
-                        fetchUseCase: container.fetchEmergencyContactsUseCase,
-                        manageUseCase: container.manageEmergencyContactUseCase
-                    ))
+                    EmergencyContactsView(
+                        viewModel: EmergencyContactsViewModel(
+                            fetchUseCase: container.fetchEmergencyContactsUseCase,
+                            manageUseCase: container.manageEmergencyContactUseCase
+                        ),
+                        fetchAuditUseCase: container.fetchEmergencyAccessAuditUseCase
+                    )
+                    .navigationDestination(for: Route.self) { route in
+                        if case .emergencyAccessAudit = route {
+                            EmergencyAccessAuditView(
+                                viewModel: EmergencyAccessAuditViewModel(
+                                    fetchAuditUseCase: container.fetchEmergencyAccessAuditUseCase
+                                )
+                            )
+                        }
+                    }
                 }
             }
 

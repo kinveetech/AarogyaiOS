@@ -25,6 +25,7 @@ final class DependencyContainer {
     let reportRepository: any ReportRepository
     let accessGrantRepository: any AccessGrantRepository
     let emergencyContactRepository: any EmergencyContactRepository
+    let emergencyAccessRepository: any EmergencyAccessRepository
     let consentRepository: any ConsentRepository
     let notificationRepository: any NotificationRepository
 
@@ -59,6 +60,10 @@ final class DependencyContainer {
     let fetchEmergencyContactsUseCase: FetchEmergencyContactsUseCase
     let manageEmergencyContactUseCase: ManageEmergencyContactUseCase
 
+    // MARK: - Use Cases — Emergency Access
+
+    let fetchEmergencyAccessAuditUseCase: FetchEmergencyAccessAuditUseCase
+
     // MARK: - Use Cases — Consents & Notifications
 
     let manageConsentsUseCase: ManageConsentsUseCase
@@ -89,6 +94,7 @@ final class DependencyContainer {
             reportRepository = deps.report
             accessGrantRepository = deps.accessGrant
             emergencyContactRepository = deps.emergency
+            emergencyAccessRepository = deps.emergencyAccess
             consentRepository = deps.consent
             notificationRepository = deps.notification
             loginUseCase = deps.login
@@ -110,6 +116,7 @@ final class DependencyContainer {
             revokeAccessGrantUseCase = deps.revokeGrant
             fetchEmergencyContactsUseCase = deps.fetchContacts
             manageEmergencyContactUseCase = deps.manageContact
+            fetchEmergencyAccessAuditUseCase = deps.fetchAudit
             manageConsentsUseCase = deps.manageConsents
             manageNotificationsUseCase = deps.manageNotifications
         } else {
@@ -125,6 +132,7 @@ final class DependencyContainer {
             reportRepository = deps.report
             accessGrantRepository = deps.accessGrant
             emergencyContactRepository = deps.emergency
+            emergencyAccessRepository = deps.emergencyAccess
             consentRepository = deps.consent
             notificationRepository = deps.notification
             loginUseCase = deps.login
@@ -146,6 +154,7 @@ final class DependencyContainer {
             revokeAccessGrantUseCase = deps.revokeGrant
             fetchEmergencyContactsUseCase = deps.fetchContacts
             manageEmergencyContactUseCase = deps.manageContact
+            fetchEmergencyAccessAuditUseCase = deps.fetchAudit
             manageConsentsUseCase = deps.manageConsents
             manageNotificationsUseCase = deps.manageNotifications
         }
@@ -164,6 +173,7 @@ private struct DependencyBundle {
     let report: any ReportRepository
     let accessGrant: any AccessGrantRepository
     let emergency: any EmergencyContactRepository
+    let emergencyAccess: any EmergencyAccessRepository
     let consent: any ConsentRepository
     let notification: any NotificationRepository
     let login: LoginUseCase
@@ -185,6 +195,7 @@ private struct DependencyBundle {
     let revokeGrant: RevokeAccessGrantUseCase
     let fetchContacts: FetchEmergencyContactsUseCase
     let manageContact: ManageEmergencyContactUseCase
+    let fetchAudit: FetchEmergencyAccessAuditUseCase
     let manageConsents: ManageConsentsUseCase
     let manageNotifications: ManageNotificationsUseCase
 }
@@ -199,6 +210,7 @@ extension DependencyContainer {
         let reportRepo = StubReportRepository()
         let grantRepo = StubAccessGrantRepository()
         let emergencyRepo = StubEmergencyContactRepository()
+        let emergencyAccessRepo = StubEmergencyAccessRepository()
         let consentRepo = StubConsentRepository()
         let notifRepo = StubNotificationRepository()
 
@@ -219,8 +231,8 @@ extension DependencyContainer {
             client: client,
             auth: authRepo, user: userRepo,
             report: reportRepo, accessGrant: grantRepo,
-            emergency: emergencyRepo, consent: consentRepo,
-            notification: notifRepo,
+            emergency: emergencyRepo, emergencyAccess: emergencyAccessRepo,
+            consent: consentRepo, notification: notifRepo,
             login: LoginUseCase(authRepository: authRepo, tokenStore: store),
             logout: LogoutUseCase(authRepository: authRepo, tokenStore: store),
             refresh: RefreshTokenUseCase(authRepository: authRepo, tokenStore: store),
@@ -245,6 +257,9 @@ extension DependencyContainer {
             ),
             manageContact: ManageEmergencyContactUseCase(
                 emergencyContactRepository: emergencyRepo
+            ),
+            fetchAudit: FetchEmergencyAccessAuditUseCase(
+                emergencyAccessRepository: emergencyAccessRepo
             ),
             manageConsents: ManageConsentsUseCase(consentRepository: consentRepo),
             manageNotifications: ManageNotificationsUseCase(
@@ -281,6 +296,7 @@ extension DependencyContainer {
         let reportRepo = DefaultReportRepository(apiClient: client)
         let grantRepo = DefaultAccessGrantRepository(apiClient: client)
         let emergencyRepo = DefaultEmergencyContactRepository(apiClient: client)
+        let emergencyAccessRepo = DefaultEmergencyAccessRepository(apiClient: client)
         let consentRepo = DefaultConsentRepository(apiClient: client)
         let notifRepo = DefaultNotificationRepository(apiClient: client)
 
@@ -290,8 +306,8 @@ extension DependencyContainer {
             client: client,
             auth: authRepo, user: userRepo,
             report: reportRepo, accessGrant: grantRepo,
-            emergency: emergencyRepo, consent: consentRepo,
-            notification: notifRepo,
+            emergency: emergencyRepo, emergencyAccess: emergencyAccessRepo,
+            consent: consentRepo, notification: notifRepo,
             login: LoginUseCase(authRepository: authRepo, tokenStore: store),
             logout: LogoutUseCase(authRepository: authRepo, tokenStore: store),
             refresh: RefreshTokenUseCase(
@@ -331,6 +347,9 @@ extension DependencyContainer {
             ),
             manageContact: ManageEmergencyContactUseCase(
                 emergencyContactRepository: emergencyRepo
+            ),
+            fetchAudit: FetchEmergencyAccessAuditUseCase(
+                emergencyAccessRepository: emergencyAccessRepo
             ),
             manageConsents: ManageConsentsUseCase(
                 consentRepository: consentRepo
