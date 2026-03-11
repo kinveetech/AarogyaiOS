@@ -31,11 +31,29 @@ struct ManageEmergencyContactUseCaseTests {
         #expect(repo.createContactCallCount == 1)
     }
 
+    @Test func createContactPassesIsPrimary() async throws {
+        let input = EmergencyContactInput(name: "John", phone: "+911234567890", relationship: .spouse, isPrimary: true)
+        _ = try await sut.create(request: input)
+        #expect(repo.lastCreatedInput?.isPrimary == true)
+    }
+
+    @Test func createContactPassesIsPrimaryFalse() async throws {
+        let input = EmergencyContactInput(name: "John", phone: "+911234567890", relationship: .spouse, isPrimary: false)
+        _ = try await sut.create(request: input)
+        #expect(repo.lastCreatedInput?.isPrimary == false)
+    }
+
     @Test func updateContactCallsRepository() async throws {
         let input = EmergencyContactInput(name: "John Updated", phone: "+911234567890", relationship: .parent, isPrimary: false)
         let contact = try await sut.update(id: "contact-1", request: input)
         #expect(contact.id == "contact-1")
         #expect(repo.updateContactCallCount == 1)
+    }
+
+    @Test func updateContactPreservesIsPrimary() async throws {
+        let input = EmergencyContactInput(name: "John Updated", phone: "+911234567890", relationship: .parent, isPrimary: true)
+        _ = try await sut.update(id: "contact-1", request: input)
+        #expect(repo.lastUpdatedInput?.isPrimary == true)
     }
 
     @Test func deleteContactCallsRepository() async throws {
