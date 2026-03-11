@@ -113,6 +113,21 @@ struct DefaultReportRepository: ReportRepository {
         return url
     }
 
+    func getVerifiedDownloadURL(reportId: String) async throws -> VerifiedDownload {
+        let dto = VerifiedDownloadUrlRequestDTO(reportId: reportId, expiryMinutes: nil)
+        let response: VerifiedDownloadUrlResponseDTO = try await apiClient.request(
+            .verifiedDownloadUrl, body: dto
+        )
+        guard let url = URL(string: response.downloadUrl) else {
+            throw APIError.decodingError(underlying: URLError(.badURL))
+        }
+        return VerifiedDownload(
+            downloadURL: url,
+            checksumSha256: nil,
+            isServerVerified: response.checksumVerified
+        )
+    }
+
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction {
         let response: ExtractionDTO = try await apiClient.request(.extractionStatus(id: reportId))
         return ReportMapper.toDomain(response)

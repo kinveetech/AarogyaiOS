@@ -12,7 +12,16 @@ final class MockReportRepository: ReportRepository, @unchecked Sendable {
     var getUploadURLResult: Result<PresignedUpload, Error> = .success(
         PresignedUpload(uploadURL: URL(string: "https://s3.example.com/upload")!, fileStorageKey: "key")
     )
-    var getDownloadURLResult: Result<URL, Error> = .success(URL(string: "https://cdn.example.com/report.pdf")!)
+    var getDownloadURLResult: Result<URL, Error> = .success(
+        URL(string: "https://cdn.example.com/report.pdf")!
+    )
+    var getVerifiedDownloadURLResult: Result<VerifiedDownload, Error> = .success(
+        VerifiedDownload(
+            downloadURL: URL(string: "https://cdn.example.com/report.pdf")!,
+            checksumSha256: nil,
+            isServerVerified: true
+        )
+    )
     var getExtractionStatusResult: Result<ReportExtraction, Error> = .success(
         ReportExtraction(
             status: .completed, extractionMethod: nil, structuringModel: nil,
@@ -29,6 +38,7 @@ final class MockReportRepository: ReportRepository, @unchecked Sendable {
     var deleteReportCallCount = 0
     var getUploadURLCallCount = 0
     var getDownloadURLCallCount = 0
+    var getVerifiedDownloadURLCallCount = 0
     var invalidateCacheCallCount = 0
 
     var lastGetReportsPage: Int?
@@ -83,6 +93,11 @@ final class MockReportRepository: ReportRepository, @unchecked Sendable {
     func getDownloadURL(reportId: String) async throws -> URL {
         getDownloadURLCallCount += 1
         return try getDownloadURLResult.get()
+    }
+
+    func getVerifiedDownloadURL(reportId: String) async throws -> VerifiedDownload {
+        getVerifiedDownloadURLCallCount += 1
+        return try getVerifiedDownloadURLResult.get()
     }
 
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction {

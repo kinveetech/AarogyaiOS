@@ -173,6 +173,10 @@ final class StubReportRepository: ReportRepository, @unchecked Sendable {
     func getDownloadURL(reportId: String) async throws -> URL {
         URL(string: "https://cdn.example.com/report.pdf")!
     }
+    func getVerifiedDownloadURL(reportId: String) async throws -> VerifiedDownload {
+        let url = URL(string: "https://cdn.example.com/report.pdf")!
+        return VerifiedDownload(downloadURL: url, checksumSha256: nil, isServerVerified: true)
+    }
 
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction {
         ReportExtraction(
