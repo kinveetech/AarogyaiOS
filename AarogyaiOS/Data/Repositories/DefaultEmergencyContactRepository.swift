@@ -44,8 +44,12 @@ struct DefaultEmergencyContactRepository: EmergencyContactRepository {
         try await apiClient.requestNoContent(.deleteEmergencyContact(id: id))
     }
 
-    func requestEmergencyAccess(contactPhone: String) async throws {
-        let dto = EmergencyAccessRequestDTO(contactPhone: contactPhone)
-        try await apiClient.requestNoContent(.requestEmergencyAccess, body: dto)
+    func requestEmergencyAccess(input: EmergencyAccessInput) async throws -> EmergencyAccessGrant {
+        let dto = EmergencyAccessMapper.toDTO(input)
+        let response: EmergencyAccessResponseDTO = try await apiClient.request(
+            .requestEmergencyAccess,
+            body: dto
+        )
+        return EmergencyAccessMapper.toDomain(response)
     }
 }

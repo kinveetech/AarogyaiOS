@@ -115,7 +115,7 @@ enum APIEndpoint: Sendable {
             "/api/v1/emergency-contacts/\(id)"
 
         // Emergency Access
-        case .requestEmergencyAccess: "/api/v1/emergency-access/request"
+        case .requestEmergencyAccess: "/api/v1/emergency-access/requests"
         case .emergencyAccessAudit: "/api/v1/emergency-access/audit"
 
         // Consents

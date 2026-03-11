@@ -18,5 +18,19 @@ struct EmergencyContactRequestDTO: Encodable, Sendable {
 }
 
 struct EmergencyAccessRequestDTO: Encodable, Sendable {
-    let contactPhone: String
+    let patientSub: String
+    let emergencyContactPhone: String
+    let doctorSub: String
+    let reason: String
+    let durationHours: Int?
+}
+
+struct EmergencyAccessResponseDTO: Decodable, Sendable {
+    let grantId: String
+    let patientSub: String
+    let doctorSub: String
+    let emergencyContactId: String
+    let startsAt: String
+    let expiresAt: String
+    let purpose: String
 }

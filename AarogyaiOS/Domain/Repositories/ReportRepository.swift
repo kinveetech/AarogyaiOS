@@ -1,7 +1,15 @@
 import Foundation
 
 protocol ReportRepository: Sendable {
-    func getReports(page: Int, pageSize: Int, type: ReportType?, status: ReportStatus?, search: String?) async throws -> PaginatedResult<Report>
+    func getReports(
+        page: Int, pageSize: Int, type: ReportType?,
+        status: ReportStatus?, search: String?
+    ) async throws -> PaginatedResult<Report>
+
+    func getReportsWithCache(
+        page: Int, pageSize: Int, type: ReportType?,
+        status: ReportStatus?, search: String?
+    ) async throws -> CachedResult<PaginatedResult<Report>>
     func getReport(id: String) async throws -> Report
     func createReport(request: CreateReportInput) async throws -> Report
     func deleteReport(id: String) async throws
@@ -10,6 +18,21 @@ protocol ReportRepository: Sendable {
     func getVerifiedDownloadURL(reportId: String) async throws -> VerifiedDownload
     func getExtractionStatus(reportId: String) async throws -> ReportExtraction
     func triggerExtraction(reportId: String) async throws
+    func invalidateCache() async
+}
+
+extension ReportRepository {
+    func getReportsWithCache(
+        page: Int, pageSize: Int, type: ReportType?,
+        status: ReportStatus?, search: String?
+    ) async throws -> CachedResult<PaginatedResult<Report>> {
+        let result = try await getReports(
+            page: page, pageSize: pageSize, type: type, status: status, search: search
+        )
+        return CachedResult(data: result, source: .network, lastFetchedAt: nil)
+    }
+
+    func invalidateCache() async {}
 }
 
 struct PaginatedResult<T: Sendable>: Sendable {

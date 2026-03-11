@@ -121,7 +121,8 @@ final class DependencyContainer {
             manageNotificationsUseCase = deps.manageNotifications
         } else {
             let deps = Self.makeProductionDependencies(
-                keychainService: keychainService
+                keychainService: keychainService,
+                localDataSource: localDataSource
             )
             tokenStore = deps.tokenStore
             s3UploadService = S3UploadService()
@@ -269,7 +270,8 @@ extension DependencyContainer {
     }
 
     private static func makeProductionDependencies(
-        keychainService: KeychainService
+        keychainService: KeychainService,
+        localDataSource: LocalDataSource
     ) -> DependencyBundle {
         let store = TokenStore(keychain: keychainService)
         let tokenRef: any TokenStoring = store
@@ -293,7 +295,7 @@ extension DependencyContainer {
             apiClient: client, tokenStore: store
         )
         let userRepo = DefaultUserRepository(apiClient: client)
-        let reportRepo = DefaultReportRepository(apiClient: client)
+        let reportRepo = DefaultReportRepository(apiClient: client, localDataSource: localDataSource)
         let grantRepo = DefaultAccessGrantRepository(apiClient: client)
         let emergencyRepo = DefaultEmergencyContactRepository(apiClient: client)
         let emergencyAccessRepo = DefaultEmergencyAccessRepository(apiClient: client)

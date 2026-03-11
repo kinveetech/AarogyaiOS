@@ -87,6 +87,16 @@ actor LocalDataSource {
         try modelContext.save()
     }
 
+    /// Returns cached reports mapped to domain models along with the most recent fetch timestamp.
+    /// Performs the mapping inside the actor to avoid sending non-Sendable `CachedReport` across boundaries.
+    func fetchCachedReportsAsDomain() throws -> (reports: [Report], lastFetchedAt: Date?) {
+        let cached = try fetchCachedReports()
+        guard !cached.isEmpty else { return ([], nil) }
+        let lastFetchedAt = cached.map(\.lastFetchedAt).max()
+        let reports = cached.map { $0.toDomain() }
+        return (reports, lastFetchedAt)
+    }
+
     // MARK: - User Helpers
 
     func fetchCachedUser(id: String) throws -> CachedUser? {
