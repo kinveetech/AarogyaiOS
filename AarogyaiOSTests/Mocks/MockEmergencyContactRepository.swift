@@ -14,6 +14,9 @@ final class MockEmergencyContactRepository: EmergencyContactRepository, @uncheck
     var deleteContactCallCount = 0
 
     var lastDeletedContactId: String?
+    var lastCreatedInput: EmergencyContactInput?
+    var lastUpdatedInput: EmergencyContactInput?
+    var lastUpdatedId: String?
 
     func getContacts() async throws -> [EmergencyContact] {
         getContactsCallCount += 1
@@ -22,11 +25,14 @@ final class MockEmergencyContactRepository: EmergencyContactRepository, @uncheck
 
     func createContact(request: EmergencyContactInput) async throws -> EmergencyContact {
         createContactCallCount += 1
+        lastCreatedInput = request
         return try createContactResult.get()
     }
 
     func updateContact(id: String, request: EmergencyContactInput) async throws -> EmergencyContact {
         updateContactCallCount += 1
+        lastUpdatedId = id
+        lastUpdatedInput = request
         return try updateContactResult.get()
     }
 
