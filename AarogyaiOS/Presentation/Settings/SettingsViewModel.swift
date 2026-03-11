@@ -10,6 +10,7 @@ final class SettingsViewModel {
 
     let getCurrentUserUseCase: GetCurrentUserUseCase
     let updateProfileUseCase: UpdateProfileUseCase
+    let verifyAadhaarUseCase: VerifyAadhaarUseCase
     let manageConsentsUseCase: ManageConsentsUseCase
     let manageNotificationsUseCase: ManageNotificationsUseCase
     private let logoutUseCase: LogoutUseCase
@@ -20,6 +21,7 @@ final class SettingsViewModel {
     init(
         getCurrentUserUseCase: GetCurrentUserUseCase,
         updateProfileUseCase: UpdateProfileUseCase,
+        verifyAadhaarUseCase: VerifyAadhaarUseCase,
         manageConsentsUseCase: ManageConsentsUseCase,
         manageNotificationsUseCase: ManageNotificationsUseCase,
         logoutUseCase: LogoutUseCase,
@@ -29,6 +31,7 @@ final class SettingsViewModel {
     ) {
         self.getCurrentUserUseCase = getCurrentUserUseCase
         self.updateProfileUseCase = updateProfileUseCase
+        self.verifyAadhaarUseCase = verifyAadhaarUseCase
         self.manageConsentsUseCase = manageConsentsUseCase
         self.manageNotificationsUseCase = manageNotificationsUseCase
         self.logoutUseCase = logoutUseCase

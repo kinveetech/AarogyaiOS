@@ -72,6 +72,7 @@ struct TabCoordinator: View {
                     SettingsView(viewModel: SettingsViewModel(
                         getCurrentUserUseCase: container.getCurrentUserUseCase,
                         updateProfileUseCase: container.updateProfileUseCase,
+                        verifyAadhaarUseCase: container.verifyAadhaarUseCase,
                         manageConsentsUseCase: container.manageConsentsUseCase,
                         manageNotificationsUseCase: container.manageNotificationsUseCase,
                         logoutUseCase: container.logoutUseCase,

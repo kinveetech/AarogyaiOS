@@ -67,10 +67,9 @@ struct DefaultUserRepository: UserRepository {
     }
 
     func verifyAadhaar(token: String) async throws -> User {
-        struct AadhaarRequest: Encodable { let token: String }
-        let response: UserProfileResponse = try await apiClient.request(
+        let response: AadhaarVerifyResponse = try await apiClient.request(
             .verifyAadhaar,
-            body: AadhaarRequest(token: token)
+            body: AadhaarVerifyRequest(aadhaarRefToken: token)
         )
         return UserMapper.toDomain(response)
     }

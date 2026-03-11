@@ -10,6 +10,10 @@ struct SettingsView: View {
                     Label("Profile", systemImage: "person")
                 }
                 .accessibilityIdentifier(AccessibilityID.Settings.profileRow)
+                NavigationLink(value: SettingsRoute.aadhaarVerification) {
+                    Label("Aadhaar Verification", systemImage: "person.badge.shield.checkmark")
+                }
+                .accessibilityIdentifier(AccessibilityID.Settings.aadhaarVerificationRow)
                 NavigationLink(value: SettingsRoute.consents) {
                     Label("Privacy & Consents", systemImage: "hand.raised")
                 }
@@ -63,6 +67,11 @@ struct SettingsView: View {
                     getCurrentUserUseCase: viewModel.getCurrentUserUseCase,
                     updateProfileUseCase: viewModel.updateProfileUseCase
                 ))
+            case .aadhaarVerification:
+                AadhaarVerificationView(viewModel: AadhaarVerificationViewModel(
+                    verifyAadhaarUseCase: viewModel.verifyAadhaarUseCase,
+                    getCurrentUserUseCase: viewModel.getCurrentUserUseCase
+                ))
             case .consents:
                 ConsentsView(viewModel: ConsentsViewModel(
                     manageConsentsUseCase: viewModel.manageConsentsUseCase
@@ -93,6 +102,7 @@ struct SettingsView: View {
 
 enum SettingsRoute: Hashable {
     case profile
+    case aadhaarVerification
     case consents
     case notifications
 }

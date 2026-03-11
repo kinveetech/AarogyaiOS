@@ -122,7 +122,17 @@ final class APIClient: Sendable {
             throw APIError.notFound
         case 400:
             let errorResponse = try? decoder.decode(ErrorResponse.self, from: data)
-            throw APIError.validationError(fields: errorResponse?.errors ?? [])
+            switch errorResponse?.errorCode {
+            case "invalid_aadhaar": throw APIError.invalidAadhaar
+            case "aadhaar_mismatch": throw APIError.aadhaarMismatch
+            default: throw APIError.validationError(fields: errorResponse?.errors ?? [])
+            }
+        case 409:
+            let errorResponse = try? decoder.decode(ErrorResponse.self, from: data)
+            if errorResponse?.errorCode == "already_verified" {
+                throw APIError.alreadyVerified
+            }
+            throw APIError.unknown(status: 409)
         case 429:
             let retryAfter = response.value(forHTTPHeaderField: "Retry-After")
                 .flatMap(TimeInterval.init)

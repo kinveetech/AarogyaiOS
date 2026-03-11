@@ -14,10 +14,12 @@ final class MockUserRepository: UserRepository, @unchecked Sendable {
     var updateProfileCallCount = 0
     var registerCallCount = 0
     var getRegistrationStatusCallCount = 0
+    var verifyAadhaarCallCount = 0
     var exportDataCallCount = 0
     var requestDeletionCallCount = 0
 
     var lastUpdatedUser: User?
+    var lastVerifyAadhaarToken: String?
 
     func getProfile() async throws -> User {
         getProfileCallCount += 1
@@ -41,6 +43,8 @@ final class MockUserRepository: UserRepository, @unchecked Sendable {
     }
 
     func verifyAadhaar(token: String) async throws -> User {
+        verifyAadhaarCallCount += 1
+        lastVerifyAadhaarToken = token
         return try verifyAadhaarResult.get()
     }
 
