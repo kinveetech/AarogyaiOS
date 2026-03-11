@@ -70,6 +70,18 @@ struct DeleteReportUseCaseTests {
         #expect(reportRepo.deleteReportCallCount == 1)
         #expect(reportRepo.lastDeletedReportId == "report-1")
     }
+
+    @Test func executePropagatesError() async {
+        reportRepo.deleteReportResult = .failure(APIError.serverError(status: 500))
+        await #expect(throws: APIError.self) {
+            try await sut.execute(reportId: "report-1")
+        }
+    }
+
+    @Test func executePassesCorrectReportId() async throws {
+        try await sut.execute(reportId: "custom-id-123")
+        #expect(reportRepo.lastDeletedReportId == "custom-id-123")
+    }
 }
 
 @Suite("UploadReportUseCase")

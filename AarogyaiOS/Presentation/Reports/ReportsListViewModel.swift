@@ -13,6 +13,7 @@ final class ReportsListViewModel {
     var hasMorePages = true
     var isFromCache = false
     var lastFetchedAt: Date?
+    var needsRefresh = false
 
     private var currentPage = 1
     private let pageSize = Constants.Pagination.defaultPageSize
@@ -87,6 +88,16 @@ final class ReportsListViewModel {
         }
 
         isLoadingMore = false
+    }
+
+    func markNeedsRefresh() {
+        needsRefresh = true
+    }
+
+    func refreshIfNeeded() async {
+        guard needsRefresh else { return }
+        needsRefresh = false
+        await loadReports()
     }
 
     func refresh() async {
