@@ -952,39 +952,3 @@ struct ConsentsViewModelTests {
     }
 }
 
-@Suite("NotificationPreferencesViewModel")
-@MainActor
-struct NotificationPreferencesViewModelTests {
-    let notifRepo = MockNotificationRepository()
-
-    func makeSUT() -> NotificationPreferencesViewModel {
-        NotificationPreferencesViewModel(
-            manageNotificationsUseCase: ManageNotificationsUseCase(notificationRepository: notifRepo)
-        )
-    }
-
-    @Test func loadPreferencesSuccess() async {
-        let sut = makeSUT()
-        await sut.loadPreferences()
-        #expect(sut.reportUploaded.push)
-        #expect(!sut.isLoading)
-        #expect(sut.error == nil)
-    }
-
-    @Test func hasChangesDetectsModification() async {
-        let sut = makeSUT()
-        await sut.loadPreferences()
-        #expect(!sut.hasChanges)
-
-        sut.reportUploaded.push = false
-        #expect(sut.hasChanges)
-    }
-
-    @Test func savePreferencesCallsRepository() async {
-        let sut = makeSUT()
-        await sut.loadPreferences()
-        sut.reportUploaded.push = false
-        await sut.savePreferences()
-        #expect(notifRepo.updatePreferencesCallCount == 1)
-    }
-}

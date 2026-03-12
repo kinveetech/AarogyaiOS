@@ -14,11 +14,16 @@ struct NotificationPreferencesView: View {
         .navigationTitle("Notifications")
         .task { await viewModel.loadPreferences() }
         .alert("Error", isPresented: .constant(viewModel.error != nil)) {
-            Button("OK") { viewModel.error = nil }
+            Button("OK") { viewModel.dismissError() }
         } message: {
             if let error = viewModel.error {
                 Text(error)
             }
+        }
+        .alert("Success", isPresented: .constant(viewModel.saveSuccess)) {
+            Button("OK") { viewModel.dismissSaveSuccess() }
+        } message: {
+            Text("Notification preferences saved successfully.")
         }
     }
 
@@ -43,11 +48,18 @@ struct NotificationPreferencesView: View {
             )
 
             Section {
-                Button("Save Preferences") {
+                Button {
                     Task { await viewModel.savePreferences() }
+                } label: {
+                    if viewModel.isSaving {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    } else {
+                        Text("Save Preferences")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
                 }
                 .disabled(!viewModel.hasChanges || viewModel.isSaving)
-                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
     }

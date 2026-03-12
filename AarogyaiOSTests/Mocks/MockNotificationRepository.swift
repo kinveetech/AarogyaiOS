@@ -13,6 +13,7 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
     var updatePreferencesCallCount = 0
     var registerDeviceCallCount = 0
     var unregisterDeviceCallCount = 0
+    var lastUpdatedPreferences: NotificationPreferences?
 
     func getPreferences() async throws -> NotificationPreferences {
         getPreferencesCallCount += 1
@@ -21,6 +22,7 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
 
     func updatePreferences(_ preferences: NotificationPreferences) async throws -> NotificationPreferences {
         updatePreferencesCallCount += 1
+        lastUpdatedPreferences = preferences
         return try updatePreferencesResult.get()
     }
 
