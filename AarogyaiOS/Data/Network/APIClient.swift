@@ -129,10 +129,14 @@ final class APIClient: Sendable {
             }
         case 409:
             let errorResponse = try? decoder.decode(ErrorResponse.self, from: data)
-            if errorResponse?.errorCode == "already_verified" {
+            switch errorResponse?.errorCode {
+            case "already_verified":
                 throw APIError.alreadyVerified
+            case "deletion_already_pending":
+                throw APIError.deletionAlreadyPending
+            default:
+                throw APIError.unknown(status: 409)
             }
-            throw APIError.unknown(status: 409)
         case 429:
             let retryAfter = response.value(forHTTPHeaderField: "Retry-After")
                 .flatMap(TimeInterval.init)

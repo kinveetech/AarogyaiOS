@@ -18,6 +18,7 @@ enum APIError: Error, Sendable {
     case alreadyVerified
     case invalidAadhaar
     case aadhaarMismatch
+    case deletionAlreadyPending
 
     var isAuthError: Bool {
         switch self {
