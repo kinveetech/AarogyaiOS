@@ -186,6 +186,18 @@ extension ReportExtraction {
     )
 }
 
+extension DeviceToken {
+    static let stub = DeviceToken(
+        id: "dt-1",
+        deviceToken: "test-device-token",
+        platform: "ios",
+        deviceName: "iPhone",
+        appVersion: "1.0",
+        registeredAt: Date(timeIntervalSince1970: 1_700_000_000),
+        updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+    )
+}
+
 extension NotificationPreferences {
     static let stub = NotificationPreferences(
         reportUploaded: ChannelPreferences(push: true, email: true, sms: false),

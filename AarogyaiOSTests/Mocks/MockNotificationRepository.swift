@@ -13,6 +13,8 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
     var updatePreferencesCallCount = 0
     var registerDeviceCallCount = 0
     var unregisterDeviceCallCount = 0
+    var lastRegisteredToken: String?
+    var lastUnregisteredToken: String?
     var lastUpdatedPreferences: NotificationPreferences?
 
     func getPreferences() async throws -> NotificationPreferences {
@@ -28,11 +30,13 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
 
     func registerDevice(token: String) async throws -> DeviceToken {
         registerDeviceCallCount += 1
+        lastRegisteredToken = token
         return try registerDeviceResult.get()
     }
 
     func unregisterDevice(token: String) async throws {
         unregisterDeviceCallCount += 1
+        lastUnregisteredToken = token
         try unregisterDeviceResult.get()
     }
 }

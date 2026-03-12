@@ -10,6 +10,7 @@ final class DependencyContainer {
     let tokenStore: any TokenStoring
     let s3UploadService: S3UploadService
     let pushService: any PushNotificationService
+    let deviceTokenManager: any DeviceTokenManaging
 
     // MARK: - Data
 
@@ -88,6 +89,7 @@ final class DependencyContainer {
             let deps = Self.makeStubDependencies()
             tokenStore = deps.tokenStore
             s3UploadService = S3UploadService()
+            deviceTokenManager = StubDeviceTokenManager()
             authInterceptor = deps.interceptor
             apiClient = deps.client
             authRepository = deps.auth
@@ -128,6 +130,10 @@ final class DependencyContainer {
             )
             tokenStore = deps.tokenStore
             s3UploadService = S3UploadService()
+            deviceTokenManager = DeviceTokenManager(
+                notificationRepository: deps.notification,
+                tokenStore: KeychainDeviceTokenStore(keychainService: keychainService)
+            )
             authInterceptor = deps.interceptor
             apiClient = deps.client
             authRepository = deps.auth

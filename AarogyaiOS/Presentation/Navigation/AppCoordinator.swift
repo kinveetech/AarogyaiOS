@@ -19,15 +19,22 @@ final class AppCoordinator {
 
     private let getCurrentUser: GetCurrentUserUseCase
     private let logout: LogoutUseCase
+    private let deviceTokenManager: any DeviceTokenManaging
 
     init(container: DependencyContainer) {
         self.getCurrentUser = container.getCurrentUserUseCase
         self.logout = container.logoutUseCase
+        self.deviceTokenManager = container.deviceTokenManager
     }
 
-    init(getCurrentUser: GetCurrentUserUseCase, logout: LogoutUseCase) {
+    init(
+        getCurrentUser: GetCurrentUserUseCase,
+        logout: LogoutUseCase,
+        deviceTokenManager: any DeviceTokenManaging = StubDeviceTokenManager()
+    ) {
         self.getCurrentUser = getCurrentUser
         self.logout = logout
+        self.deviceTokenManager = deviceTokenManager
     }
 
     func checkAuthState() async {
@@ -40,6 +47,7 @@ final class AppCoordinator {
                 state = .rejected
             case .approved:
                 state = .authenticated(user)
+                await deviceTokenManager.reregisterIfNeeded()
             }
         } catch let error as APIError {
             switch error {
@@ -66,6 +74,7 @@ final class AppCoordinator {
     }
 
     func handleLogout() async {
+        await deviceTokenManager.unregisterCurrentDevice()
         do {
             try await logout.execute()
         } catch {
