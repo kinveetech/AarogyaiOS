@@ -19,7 +19,10 @@ struct TabCoordinator: View {
         TabView(selection: $selectedTab) {
             Tab("Reports", systemImage: "doc.text", value: .reports) {
                 NavigationStack {
-                    ReportsListView(viewModel: resolveReportsListViewModel())
+                    ReportsListView(
+                        viewModel: resolveReportsListViewModel(),
+                        uploadReportUseCase: container.uploadReportUseCase
+                    )
                     .navigationDestination(for: Route.self) { route in
                         if case .reportDetail(let id) = route {
                             ReportDetailView(viewModel: ReportDetailViewModel(

@@ -6,4 +6,8 @@ enum ReportType: String, Codable, CaseIterable, Sendable {
     case radiology
     case cardiology
     case other
+
+    var displayName: String {
+        rawValue.replacingOccurrences(of: "_", with: " ").capitalized
+    }
 }

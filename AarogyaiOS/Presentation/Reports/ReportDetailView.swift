@@ -121,7 +121,7 @@ struct ReportDetailView: View {
             Text("Details")
                 .font(Typography.headline)
 
-            metadataRow("Type", value: report.reportType.rawValue.capitalized)
+            metadataRow("Type", value: report.reportType.displayName)
             if let doctor = report.doctorName {
                 metadataRow("Doctor", value: doctor)
             }
