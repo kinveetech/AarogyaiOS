@@ -1,19 +1,17 @@
 import Foundation
 
 struct ReportSummaryDTO: Decodable, Sendable {
-    let reportId: String
-    let reportNumber: String
+    let id: String
     let title: String
     let reportType: String
     let status: String
-    let patientId: String
-    let uploadedAt: String
+    let createdAt: String
     let labName: String?
     let highlightParameter: String?
 }
 
 struct ReportDetailDTO: Decodable, Sendable {
-    let reportId: String
+    let id: String
     let reportNumber: String
     let title: String
     let reportType: String

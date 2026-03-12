@@ -3,7 +3,7 @@ import Foundation
 enum ReportMapper {
     static func toDomain(_ dto: ReportDetailDTO) -> Report {
         Report(
-            id: dto.reportId,
+            id: dto.id,
             reportNumber: dto.reportNumber,
             title: dto.title,
             reportType: ReportType(rawValue: dto.reportType) ?? .other,
@@ -30,18 +30,18 @@ enum ReportMapper {
 
     static func toDomain(_ dto: ReportSummaryDTO) -> Report {
         Report(
-            id: dto.reportId,
-            reportNumber: dto.reportNumber,
+            id: dto.id,
+            reportNumber: "",
             title: dto.title,
             reportType: ReportType(rawValue: dto.reportType) ?? .other,
             status: ReportStatus(rawValue: dto.status) ?? .draft,
-            patientId: dto.patientId,
+            patientId: "",
             doctorId: nil,
             doctorName: nil,
             labName: dto.labName,
             collectedAt: nil,
             reportedAt: nil,
-            uploadedAt: Date(iso8601: dto.uploadedAt) ?? .now,
+            uploadedAt: Date(iso8601: dto.createdAt) ?? .now,
             notes: nil,
             fileStorageKey: nil,
             fileType: nil,
@@ -50,8 +50,8 @@ enum ReportMapper {
             parameters: [],
             extraction: nil,
             highlightParameter: dto.highlightParameter,
-            createdAt: .now,
-            updatedAt: .now
+            createdAt: Date(iso8601: dto.createdAt) ?? .now,
+            updatedAt: Date(iso8601: dto.createdAt) ?? .now
         )
     }
 
