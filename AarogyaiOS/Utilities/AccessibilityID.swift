@@ -85,6 +85,7 @@ enum AccessibilityID {
         static let deleteConfirmFinalButton = "settings.deleteAccount.confirm.final"
         static let deleteCancelButton = "settings.deleteAccount.cancel"
         static let signOutButton = "settings.signOut"
+        static let registeredDevicesRow = "settings.registeredDevices"
         static let versionLabel = "settings.version"
     }
 
@@ -111,6 +112,17 @@ enum AccessibilityID {
     // MARK: - Notification Preferences
     enum Notifications {
         static let saveButton = "notifications.save"
+    }
+
+    // MARK: - Registered Devices
+    enum RegisteredDevices {
+        static let list = "registeredDevices.list"
+        static let emptyState = "registeredDevices.emptyState"
+        static let loadingView = "registeredDevices.loading"
+        static func deviceRow(_ id: String) -> String { "registeredDevices.row.\(id)" }
+        static func currentBadge(_ id: String) -> String { "registeredDevices.current.\(id)" }
+        static func deregisterButton(_ id: String) -> String { "registeredDevices.deregister.\(id)" }
+        static let deregisterConfirmButton = "registeredDevices.deregister.confirm"
     }
 
     // MARK: - Aadhaar Verification

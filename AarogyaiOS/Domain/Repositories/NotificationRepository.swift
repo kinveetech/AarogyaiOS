@@ -5,4 +5,5 @@ protocol NotificationRepository: Sendable {
     func updatePreferences(_ preferences: NotificationPreferences) async throws -> NotificationPreferences
     func registerDevice(token: String) async throws -> DeviceToken
     func unregisterDevice(token: String) async throws
+    func listDevices() async throws -> [DeviceToken]
 }

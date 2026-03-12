@@ -25,6 +25,7 @@ final class SettingsViewModel {
     let verifyAadhaarUseCase: VerifyAadhaarUseCase
     let manageConsentsUseCase: ManageConsentsUseCase
     let manageNotificationsUseCase: ManageNotificationsUseCase
+    let deviceTokenManager: any DeviceTokenManaging
     private let logoutUseCase: LogoutUseCase
     private let exportDataUseCase: ExportDataUseCase
     private let requestAccountDeletionUseCase: RequestAccountDeletionUseCase
@@ -39,6 +40,7 @@ final class SettingsViewModel {
         verifyAadhaarUseCase: VerifyAadhaarUseCase,
         manageConsentsUseCase: ManageConsentsUseCase,
         manageNotificationsUseCase: ManageNotificationsUseCase,
+        deviceTokenManager: any DeviceTokenManaging,
         logoutUseCase: LogoutUseCase,
         exportDataUseCase: ExportDataUseCase,
         requestAccountDeletionUseCase: RequestAccountDeletionUseCase,
@@ -49,6 +51,7 @@ final class SettingsViewModel {
         self.verifyAadhaarUseCase = verifyAadhaarUseCase
         self.manageConsentsUseCase = manageConsentsUseCase
         self.manageNotificationsUseCase = manageNotificationsUseCase
+        self.deviceTokenManager = deviceTokenManager
         self.logoutUseCase = logoutUseCase
         self.exportDataUseCase = exportDataUseCase
         self.requestAccountDeletionUseCase = requestAccountDeletionUseCase

@@ -312,6 +312,7 @@ final class StubNotificationRepository: NotificationRepository, @unchecked Senda
     }
 
     func unregisterDevice(token: String) async throws {}
+    func listDevices() async throws -> [DeviceToken] { [] }
 }
 
 // MARK: - Stub File Uploader

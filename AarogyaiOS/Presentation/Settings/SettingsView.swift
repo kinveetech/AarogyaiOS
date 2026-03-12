@@ -22,6 +22,10 @@ struct SettingsView: View {
                     Label("Notifications", systemImage: "bell")
                 }
                 .accessibilityIdentifier(AccessibilityID.Settings.notificationsRow)
+                NavigationLink(value: SettingsRoute.registeredDevices) {
+                    Label("Registered Devices", systemImage: "laptopcomputer.and.iphone")
+                }
+                .accessibilityIdentifier(AccessibilityID.Settings.registeredDevicesRow)
             }
 
             Section {
@@ -105,6 +109,11 @@ struct SettingsView: View {
             case .notifications:
                 NotificationPreferencesView(viewModel: NotificationPreferencesViewModel(
                     manageNotificationsUseCase: viewModel.manageNotificationsUseCase
+                ))
+            case .registeredDevices:
+                RegisteredDevicesView(viewModel: RegisteredDevicesViewModel(
+                    manageNotificationsUseCase: viewModel.manageNotificationsUseCase,
+                    deviceTokenManager: viewModel.deviceTokenManager
                 ))
             }
         }
@@ -256,4 +265,5 @@ enum SettingsRoute: Hashable {
     case aadhaarVerification
     case consents
     case notifications
+    case registeredDevices
 }

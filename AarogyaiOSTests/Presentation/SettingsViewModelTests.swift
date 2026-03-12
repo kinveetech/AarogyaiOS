@@ -19,6 +19,7 @@ struct SettingsViewModelTests {
             verifyAadhaarUseCase: VerifyAadhaarUseCase(userRepository: userRepo),
             manageConsentsUseCase: ManageConsentsUseCase(consentRepository: consentRepo),
             manageNotificationsUseCase: ManageNotificationsUseCase(notificationRepository: notifRepo),
+            deviceTokenManager: MockDeviceTokenManager(),
             logoutUseCase: LogoutUseCase(authRepository: authRepo, tokenStore: tokenStore),
             exportDataUseCase: ExportDataUseCase(userRepository: userRepo),
             requestAccountDeletionUseCase: RequestAccountDeletionUseCase(userRepository: userRepo),

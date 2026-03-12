@@ -75,6 +75,7 @@ struct TabCoordinator: View {
                         verifyAadhaarUseCase: container.verifyAadhaarUseCase,
                         manageConsentsUseCase: container.manageConsentsUseCase,
                         manageNotificationsUseCase: container.manageNotificationsUseCase,
+                        deviceTokenManager: container.deviceTokenManager,
                         logoutUseCase: container.logoutUseCase,
                         exportDataUseCase: container.exportDataUseCase,
                         requestAccountDeletionUseCase: container.requestAccountDeletionUseCase,

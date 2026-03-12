@@ -59,6 +59,21 @@ struct DefaultNotificationRepository: NotificationRepository {
         try await apiClient.requestNoContent(.unregisterDevice(token: token))
     }
 
+    func listDevices() async throws -> [DeviceToken] {
+        let responses: [DeviceTokenResponse] = try await apiClient.request(.devicesList)
+        return responses.map { response in
+            DeviceToken(
+                id: response.id,
+                deviceToken: response.deviceToken,
+                platform: response.platform,
+                deviceName: response.deviceName,
+                appVersion: response.appVersion,
+                registeredAt: Date(iso8601: response.registeredAt) ?? .now,
+                updatedAt: Date(iso8601: response.updatedAt) ?? .now
+            )
+        }
+    }
+
     private func toDomain(_ dto: ChannelPreferencesDTO) -> ChannelPreferences {
         ChannelPreferences(push: dto.push, email: dto.email, sms: dto.sms)
     }
