@@ -52,13 +52,8 @@ struct PaginatedResult<T: Sendable>: Sendable {
 }
 
 struct CreateReportInput: Sendable {
-    let fileStorageKey: String
+    let objectKey: String
     let reportType: ReportType
-    let title: String?
-    let reportDate: Date?
-    let doctorName: String?
-    let labName: String?
-    let notes: String?
 }
 
 struct PresignedUpload: Sendable {

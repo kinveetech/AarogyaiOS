@@ -60,13 +60,23 @@ struct ExtractionDTO: Decodable, Sendable {
 }
 
 struct CreateReportRequestDTO: Encodable, Sendable {
-    let fileStorageKey: String
+    let objectKey: String
     let reportType: String
-    let title: String?
-    let reportDate: String?
-    let doctorName: String?
     let labName: String?
+    let parameters: [ReportParameterRequestDTO]
     let notes: String?
+    let collectedAt: String?
+    let reportedAt: String?
+}
+
+struct ReportParameterRequestDTO: Encodable, Sendable {
+    let code: String
+    let name: String
+    let numericValue: Double?
+    let textValue: String?
+    let unit: String?
+    let referenceRange: String?
+    let isAbnormal: Bool?
 }
 
 struct UploadUrlRequestDTO: Encodable, Sendable {
