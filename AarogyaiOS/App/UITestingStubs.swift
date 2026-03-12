@@ -498,6 +498,7 @@ extension AccessGrant {
             grantedToUserId: "doc-1",
             grantedToUserName: "Dr. Anil Kumar",
             grantedByUserId: "user-ui-test",
+            grantedByUserName: "Priya Sharma",
             grantReason: "Annual checkup follow-up",
             scope: AccessScope(allReports: true, reportIds: []),
             status: .active,
@@ -512,6 +513,7 @@ extension AccessGrant {
             grantedToUserId: "doc-2",
             grantedToUserName: "Dr. Meera Patel",
             grantedByUserId: "user-ui-test",
+            grantedByUserName: "Priya Sharma",
             grantReason: nil,
             scope: AccessScope(allReports: false, reportIds: ["rpt-2"]),
             status: .expired,
@@ -523,18 +525,13 @@ extension AccessGrant {
     ]
 
     static let uiTestReceivedStub = AccessGrant(
-        id: "grant-3",
-        patientId: "patient-2",
-        grantedToUserId: "user-ui-test",
-        grantedToUserName: "Priya Sharma",
-        grantedByUserId: "patient-2",
+        id: "grant-3", patientId: "patient-2",
+        grantedToUserId: "user-ui-test", grantedToUserName: "Priya Sharma",
+        grantedByUserId: "patient-2", grantedByUserName: "Rajesh Kumar",
         grantReason: "Emergency consultation",
         scope: AccessScope(allReports: false, reportIds: ["rpt-x"]),
-        status: .active,
-        startsAt: Date(timeIntervalSinceNow: -86400 * 5),
-        expiresAt: nil,
-        revokedAt: nil,
-        createdAt: Date(timeIntervalSinceNow: -86400 * 5)
+        status: .active, startsAt: Date(timeIntervalSinceNow: -86400 * 5),
+        expiresAt: nil, revokedAt: nil, createdAt: Date(timeIntervalSinceNow: -86400 * 5)
     )
 }
 

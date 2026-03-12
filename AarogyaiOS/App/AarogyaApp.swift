@@ -96,10 +96,11 @@ struct RootView: View {
                     Task { await coordinator.handleLogout() }
                 }
             )
-        case .authenticated:
+        case .authenticated(let user):
             TabCoordinator(
                 container: container,
                 selectedTab: $coordinator.selectedTab,
+                userRole: user.role,
                 onSignOut: { await coordinator.handleLogout() }
             )
         }
