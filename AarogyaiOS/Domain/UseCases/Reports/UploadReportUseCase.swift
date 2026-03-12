@@ -27,13 +27,8 @@ struct UploadReportUseCase: Sendable {
 
         return try await reportRepository.createReport(
             request: CreateReportInput(
-                fileStorageKey: presigned.fileStorageKey,
-                reportType: input.reportType,
-                title: input.title,
-                reportDate: input.reportDate,
-                doctorName: input.doctorName,
-                labName: input.labName,
-                notes: input.notes
+                objectKey: presigned.fileStorageKey,
+                reportType: input.reportType
             )
         )
     }
@@ -44,11 +39,6 @@ struct UploadReportInput: Sendable {
     let fileName: String
     let contentType: String
     let reportType: ReportType
-    let title: String?
-    let reportDate: Date?
-    let doctorName: String?
-    let labName: String?
-    let notes: String?
 }
 
 protocol FileUploading: Sendable {

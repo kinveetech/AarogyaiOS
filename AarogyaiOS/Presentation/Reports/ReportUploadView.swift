@@ -21,8 +21,6 @@ struct ReportUploadView: View {
                         switch viewModel.currentStep {
                         case .fileSelection:
                             fileSelectionStep
-                        case .metadata:
-                            metadataStep
                         case .uploading:
                             uploadingStep
                         }
@@ -61,13 +59,13 @@ struct ReportUploadView: View {
         .padding(.vertical, 8)
     }
 
-    // MARK: - Step 1: File Selection
+    // MARK: - Step 1: File Selection + Report Type
 
     @State private var showFilePicker = false
 
     private var fileSelectionStep: some View {
         VStack(spacing: 20) {
-            Text("Select a file")
+            Text("Upload Report")
                 .font(Typography.title)
 
             Button {
@@ -116,6 +114,23 @@ struct ReportUploadView: View {
                     .font(Typography.caption)
                     .foregroundStyle(Color.Fallback.statusCritical)
             }
+
+            if viewModel.fileData != nil {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Report Type")
+                        .font(Typography.callout)
+                        .foregroundStyle(.secondary)
+
+                    Picker("Report Type", selection: $viewModel.reportType) {
+                        ForEach(ReportType.allCases, id: \.self) { type in
+                            Text(type.displayName)
+                                .tag(type)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
     }
 
@@ -133,48 +148,7 @@ struct ReportUploadView: View {
         }
     }
 
-    // MARK: - Step 2: Metadata
-
-    private var metadataStep: some View {
-        VStack(spacing: 16) {
-            Text("Report Details")
-                .font(Typography.title)
-
-            TextField("Title (optional)", text: $viewModel.title)
-                .font(Typography.body)
-                .padding(12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-
-            Picker("Report Type", selection: $viewModel.reportType) {
-                ForEach(ReportType.allCases, id: \.self) { type in
-                    Text(type.displayName)
-                        .tag(type)
-                }
-            }
-            .pickerStyle(.menu)
-
-            DatePicker("Report Date", selection: $viewModel.reportDate, displayedComponents: .date)
-                .font(Typography.body)
-
-            TextField("Doctor Name (optional)", text: $viewModel.doctorName)
-                .font(Typography.body)
-                .padding(12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-
-            TextField("Lab Name (optional)", text: $viewModel.labName)
-                .font(Typography.body)
-                .padding(12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-
-            TextField("Notes (optional)", text: $viewModel.notes, axis: .vertical)
-                .font(Typography.body)
-                .lineLimit(3...6)
-                .padding(12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-        }
-    }
-
-    // MARK: - Step 3: Upload Progress
+    // MARK: - Step 2: Upload Progress
 
     private var uploadingStep: some View {
         VStack(spacing: 24) {
@@ -257,21 +231,11 @@ struct ReportUploadView: View {
 
     private var navigationButtons: some View {
         HStack(spacing: 12) {
-            if viewModel.currentStep != .fileSelection {
-                SecondaryButton("Back", icon: "chevron.left") {
-                    viewModel.previousStep()
-                }
-            }
-
             if viewModel.currentStep == .fileSelection {
-                PrimaryButton("Continue", icon: "chevron.right") {
-                    viewModel.nextStep()
-                }
-                .disabled(!viewModel.canProceedFromStep1 || viewModel.isFileTooLarge)
-            } else if viewModel.currentStep == .metadata {
                 PrimaryButton("Upload", icon: "arrow.up") {
                     viewModel.nextStep()
                 }
+                .disabled(!viewModel.canProceedFromStep1 || viewModel.isFileTooLarge)
             }
         }
         .padding(24)

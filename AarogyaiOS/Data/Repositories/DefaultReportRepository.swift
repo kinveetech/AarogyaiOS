@@ -74,13 +74,13 @@ struct DefaultReportRepository: ReportRepository {
 
     func createReport(request: CreateReportInput) async throws -> Report {
         let dto = CreateReportRequestDTO(
-            fileStorageKey: request.fileStorageKey,
+            objectKey: request.objectKey,
             reportType: request.reportType.rawValue,
-            title: request.title,
-            reportDate: request.reportDate?.iso8601String,
-            doctorName: request.doctorName,
-            labName: request.labName,
-            notes: request.notes
+            labName: nil,
+            parameters: [],
+            notes: nil,
+            collectedAt: nil,
+            reportedAt: nil
         )
         let response: ReportDetailDTO = try await apiClient.request(.createReport, body: dto)
         let report = ReportMapper.toDomain(response)

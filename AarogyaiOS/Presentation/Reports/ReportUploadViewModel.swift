@@ -6,8 +6,7 @@ import OSLog
 final class ReportUploadViewModel {
     enum UploadStep: Int, CaseIterable {
         case fileSelection = 1
-        case metadata = 2
-        case uploading = 3
+        case uploading = 2
     }
 
     enum UploadState {
@@ -20,20 +19,13 @@ final class ReportUploadViewModel {
     // Navigation
     var currentStep: UploadStep = .fileSelection
 
-    // Step 1: File
+    // Step 1: File Selection + Report Type
     var fileData: Data?
     var fileName: String = ""
     var fileContentType: String = "application/pdf"
-
-    // Step 2: Metadata
-    var title: String = ""
     var reportType: ReportType = .bloodTest
-    var reportDate: Date = .now
-    var doctorName: String = ""
-    var labName: String = ""
-    var notes: String = ""
 
-    // Step 3: Upload
+    // Step 2: Upload
     var uploadState: UploadState = .idle
 
     private let uploadReportUseCase: UploadReportUseCase
@@ -60,16 +52,11 @@ final class ReportUploadViewModel {
         fileData = data
         fileName = name
         fileContentType = contentType
-        title = name.replacingOccurrences(of: ".pdf", with: "")
-            .replacingOccurrences(of: ".jpg", with: "")
-            .replacingOccurrences(of: ".png", with: "")
     }
 
     func nextStep() {
         switch currentStep {
         case .fileSelection:
-            currentStep = .metadata
-        case .metadata:
             currentStep = .uploading
             Task { await startUpload() }
         case .uploading:
@@ -81,8 +68,6 @@ final class ReportUploadViewModel {
         switch currentStep {
         case .fileSelection:
             break
-        case .metadata:
-            currentStep = .fileSelection
         case .uploading:
             break
         }
@@ -98,12 +83,7 @@ final class ReportUploadViewModel {
                 fileData: fileData,
                 fileName: fileName,
                 contentType: fileContentType,
-                reportType: reportType,
-                title: title.isEmpty ? nil : title,
-                reportDate: reportDate,
-                doctorName: doctorName.isEmpty ? nil : doctorName,
-                labName: labName.isEmpty ? nil : labName,
-                notes: notes.isEmpty ? nil : notes
+                reportType: reportType
             )
 
             let report = try await uploadReportUseCase.execute(input: input) { [weak self] progress in
