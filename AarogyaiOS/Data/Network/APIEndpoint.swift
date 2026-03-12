@@ -54,6 +54,7 @@ enum APIEndpoint: Sendable {
     case updateNotificationPreferences
     case registerDevice
     case unregisterDevice(token: String)
+    case devicesList
 
     var method: HTTPMethod {
         switch self {
@@ -124,7 +125,7 @@ enum APIEndpoint: Sendable {
         // Notifications
         case .notificationPreferences, .updateNotificationPreferences:
             "/api/v1/notifications/preferences"
-        case .registerDevice: "/api/v1/notifications/devices"
+        case .registerDevice, .devicesList: "/api/v1/notifications/devices"
         case .unregisterDevice(let token): "/api/v1/notifications/devices/\(token)"
         }
     }

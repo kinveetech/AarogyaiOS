@@ -22,4 +22,8 @@ struct ManageNotificationsUseCase: Sendable {
     func unregisterDevice(token: String) async throws {
         try await notificationRepository.unregisterDevice(token: token)
     }
+
+    func listDevices() async throws -> [DeviceToken] {
+        try await notificationRepository.listDevices()
+    }
 }

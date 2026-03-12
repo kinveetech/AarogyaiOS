@@ -8,11 +8,13 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
         DeviceToken(id: "dt-1", deviceToken: "token", platform: "ios", deviceName: "iPhone", appVersion: "1.0", registeredAt: .now, updatedAt: .now)
     )
     var unregisterDeviceResult: Result<Void, Error> = .success(())
+    var listDevicesResult: Result<[DeviceToken], Error> = .success([.stub])
 
     var getPreferencesCallCount = 0
     var updatePreferencesCallCount = 0
     var registerDeviceCallCount = 0
     var unregisterDeviceCallCount = 0
+    var listDevicesCallCount = 0
     var lastRegisteredToken: String?
     var lastUnregisteredToken: String?
     var lastUpdatedPreferences: NotificationPreferences?
@@ -38,5 +40,10 @@ final class MockNotificationRepository: NotificationRepository, @unchecked Senda
         unregisterDeviceCallCount += 1
         lastUnregisteredToken = token
         try unregisterDeviceResult.get()
+    }
+
+    func listDevices() async throws -> [DeviceToken] {
+        listDevicesCallCount += 1
+        return try listDevicesResult.get()
     }
 }
