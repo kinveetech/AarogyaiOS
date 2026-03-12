@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReportsListView: View {
     @State var viewModel: ReportsListViewModel
+    let uploadReportUseCase: UploadReportUseCase
     @State private var showUpload = false
 
     var body: some View {
@@ -21,7 +22,14 @@ struct ReportsListView: View {
         .task { await viewModel.loadReports() }
         .onAppear { Task { await viewModel.refreshIfNeeded() } }
         .sheet(isPresented: $showUpload) {
-            Text("Upload Report") // Placeholder for ReportUploadView
+            ReportUploadView(
+                viewModel: ReportUploadViewModel(
+                    uploadReportUseCase: uploadReportUseCase
+                ),
+                onUploadComplete: {
+                    viewModel.markNeedsRefresh()
+                }
+            )
         }
     }
 
@@ -45,7 +53,7 @@ struct ReportsListView: View {
                             items: ReportType.allCases,
                             selection: $viewModel.selectedFilter
                         ) { type in
-                            type.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
+                            type.displayName
                         }
                         .padding(.vertical, 8)
                         .onChange(of: viewModel.selectedFilter) {

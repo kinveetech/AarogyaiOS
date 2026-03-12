@@ -3,7 +3,13 @@ import UniformTypeIdentifiers
 
 struct ReportUploadView: View {
     @State var viewModel: ReportUploadViewModel
+    let onUploadComplete: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
+
+    init(viewModel: ReportUploadViewModel, onUploadComplete: (() -> Void)? = nil) {
+        self.viewModel = viewModel
+        self.onUploadComplete = onUploadComplete
+    }
 
     var body: some View {
         NavigationStack {
@@ -141,7 +147,7 @@ struct ReportUploadView: View {
 
             Picker("Report Type", selection: $viewModel.reportType) {
                 ForEach(ReportType.allCases, id: \.self) { type in
-                    Text(type.rawValue.replacingOccurrences(of: "_", with: " ").capitalized)
+                    Text(type.displayName)
                         .tag(type)
                 }
             }
@@ -221,6 +227,7 @@ struct ReportUploadView: View {
                 .foregroundStyle(.secondary)
 
             PrimaryButton("Done") {
+                onUploadComplete?()
                 dismiss()
             }
         }
