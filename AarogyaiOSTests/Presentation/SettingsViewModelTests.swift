@@ -140,34 +140,234 @@ struct SettingsViewModelTests {
         #expect(!sut.exportSuccess)
     }
 
-    // MARK: - Account Deletion
+    // MARK: - Account Deletion: Step 1 — Initial Warning
 
-    @Test func requestAccountDeletionCallsRepository() async {
+    @Test func beginAccountDeletionShowsConfirmation() {
         let sut = makeSUT()
+        #expect(!sut.showDeleteConfirmation)
+        sut.beginAccountDeletion()
+        #expect(sut.showDeleteConfirmation)
+    }
+
+    // MARK: - Account Deletion: Step 2 — Typing Confirmation
+
+    @Test func proceedToDeleteTypingConfirmationShowsSheet() {
+        let sut = makeSUT()
+        sut.proceedToDeleteTypingConfirmation()
+        #expect(sut.showDeleteTypingConfirmation)
+        #expect(sut.deleteConfirmationText.isEmpty)
+    }
+
+    @Test func proceedToDeleteTypingConfirmationResetsText() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "something"
+        sut.proceedToDeleteTypingConfirmation()
+        #expect(sut.deleteConfirmationText.isEmpty)
+    }
+
+    @Test func isDeleteConfirmationValidReturnsFalseWhenEmpty() {
+        let sut = makeSUT()
+        #expect(!sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidReturnsFalseForPartialText() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DEL"
+        #expect(!sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidReturnsFalseForWrongText() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "REMOVE"
+        #expect(!sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidReturnsTrueForExactMatch() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        #expect(sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidIsCaseInsensitive() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "delete"
+        #expect(sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidTrimsWhitespace() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "  DELETE  "
+        #expect(sut.isDeleteConfirmationValid)
+    }
+
+    @Test func isDeleteConfirmationValidHandlesMixedCase() {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "Delete"
+        #expect(sut.isDeleteConfirmationValid)
+    }
+
+    // MARK: - Account Deletion: Confirm and Execute
+
+    @Test func confirmAccountDeletionCallsRepository() async {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(userRepo.requestDeletionCallCount == 1)
+    }
+
+    @Test func confirmAccountDeletionDoesNothingWhenTextInvalid() async {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "WRONG"
+        await sut.confirmAccountDeletion()
+        #expect(userRepo.requestDeletionCallCount == 0)
+    }
+
+    @Test func confirmAccountDeletionSignsOutOnSuccess() async {
+        let signedOut = Mutex(false)
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(signedOut.withLock { $0 })
+    }
+
+    @Test func confirmAccountDeletionClearsSheetOnSuccess() async {
+        let sut = makeSUT()
+        sut.showDeleteTypingConfirmation = true
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(!sut.showDeleteTypingConfirmation)
+        #expect(sut.deleteConfirmationText.isEmpty)
+    }
+
+    @Test func confirmAccountDeletionSetsIsDeletingFalseAfterSuccess() async {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(!sut.isDeletingAccount)
+    }
+
+    @Test func confirmAccountDeletionClearsErrorOnNewAttempt() async {
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error != nil)
+
+        userRepo.requestDeletionResult = .success(())
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == nil)
+    }
+
+    // MARK: - Account Deletion: Error Handling
+
+    @Test func confirmAccountDeletionSetsErrorOnFailure() async {
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Server error. Please try again later.")
+    }
+
+    @Test func confirmAccountDeletionDoesNotSignOutOnFailure() async {
+        let signedOut = Mutex(false)
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(!signedOut.withLock { $0 })
+    }
+
+    @Test func confirmAccountDeletionSetsIsDeletingFalseAfterFailure() async {
+        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(!sut.isDeletingAccount)
+    }
+
+    @Test func confirmAccountDeletionHandlesDeletionAlreadyPending() async {
+        userRepo.requestDeletionResult = .failure(APIError.deletionAlreadyPending)
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "A deletion request is already pending. Please wait for it to be processed.")
+    }
+
+    @Test func confirmAccountDeletionHandlesUnauthorizedError() async {
+        userRepo.requestDeletionResult = .failure(APIError.unauthorized)
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Session expired. Please sign in again.")
+    }
+
+    @Test func confirmAccountDeletionHandlesTokenRefreshFailed() async {
+        userRepo.requestDeletionResult = .failure(APIError.tokenRefreshFailed)
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Session expired. Please sign in again.")
+    }
+
+    @Test func confirmAccountDeletionHandlesRateLimited() async {
+        userRepo.requestDeletionResult = .failure(APIError.rateLimited(retryAfter: 30))
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Too many requests. Please try again later.")
+    }
+
+    @Test func confirmAccountDeletionHandlesNetworkError() async {
+        userRepo.requestDeletionResult = .failure(
+            APIError.networkError(underlying: URLError(.notConnectedToInternet))
+        )
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Network error. Check your connection and try again.")
+    }
+
+    @Test func confirmAccountDeletionHandlesUnknownAPIError() async {
+        userRepo.requestDeletionResult = .failure(APIError.unknown(status: 418))
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Failed to request account deletion. Please try again.")
+    }
+
+    @Test func confirmAccountDeletionHandlesNonAPIError() async {
+        struct CustomError: Error {}
+        userRepo.requestDeletionResult = .failure(CustomError())
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
+        await sut.confirmAccountDeletion()
+        #expect(sut.error == "Failed to request account deletion. Please try again.")
+    }
+
+    // MARK: - Account Deletion: Cancel
+
+    @Test func cancelAccountDeletionResetsState() {
+        let sut = makeSUT()
+        sut.showDeleteTypingConfirmation = true
+        sut.deleteConfirmationText = "DELE"
+        sut.cancelAccountDeletion()
+        #expect(!sut.showDeleteTypingConfirmation)
+        #expect(sut.deleteConfirmationText.isEmpty)
+    }
+
+    // MARK: - Account Deletion: Legacy Method
+
+    @Test func requestAccountDeletionCallsConfirmAccountDeletion() async {
+        let sut = makeSUT()
+        sut.deleteConfirmationText = "DELETE"
         await sut.requestAccountDeletion()
         #expect(userRepo.requestDeletionCallCount == 1)
     }
 
-    @Test func requestAccountDeletionSignsOutOnSuccess() async {
-        let signedOut = Mutex(false)
-        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
-        await sut.requestAccountDeletion()
-        #expect(signedOut.withLock { $0 })
-    }
+    // MARK: - Account Deletion: Confirmation Keyword
 
-    @Test func requestAccountDeletionSetsErrorOnFailure() async {
-        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
-        let sut = makeSUT()
-        await sut.requestAccountDeletion()
-        #expect(sut.error == "Failed to request account deletion")
-    }
-
-    @Test func requestAccountDeletionDoesNotSignOutOnFailure() async {
-        let signedOut = Mutex(false)
-        userRepo.requestDeletionResult = .failure(APIError.serverError(status: 500))
-        let sut = makeSUT(signOutCalled: { signedOut.withLock { $0 = true } })
-        await sut.requestAccountDeletion()
-        #expect(!signedOut.withLock { $0 })
+    @Test func deletionConfirmationKeywordIsDELETE() {
+        #expect(SettingsViewModel.deletionConfirmationKeyword == "DELETE")
     }
 
     // MARK: - Sign Out

@@ -77,6 +77,13 @@ enum AccessibilityID {
         static let exportConfirmButton = "settings.export.confirm"
         static let exportSuccessOKButton = "settings.export.success.ok"
         static let deleteAccountButton = "settings.deleteAccount"
+        static let deleteAccountProgress = "settings.deleteAccount.progress"
+        static let deleteAccountFooter = "settings.deleteAccount.footer"
+        static let deleteConfirmContinueButton = "settings.deleteAccount.confirm.continue"
+        static let deleteWarningIcon = "settings.deleteAccount.warningIcon"
+        static let deleteConfirmationTextField = "settings.deleteAccount.confirmationField"
+        static let deleteConfirmFinalButton = "settings.deleteAccount.confirm.final"
+        static let deleteCancelButton = "settings.deleteAccount.cancel"
         static let signOutButton = "settings.signOut"
         static let versionLabel = "settings.version"
     }
