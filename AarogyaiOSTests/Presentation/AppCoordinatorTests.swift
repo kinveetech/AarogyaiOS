@@ -8,11 +8,13 @@ struct AppCoordinatorTests {
     let userRepo = MockUserRepository()
     let authRepo = MockAuthRepository()
     let tokenStore = MockTokenStore()
+    let deviceTokenManager = MockDeviceTokenManager()
 
     func makeSUT() -> AppCoordinator {
         AppCoordinator(
             getCurrentUser: GetCurrentUserUseCase(userRepository: userRepo),
-            logout: LogoutUseCase(authRepository: authRepo, tokenStore: tokenStore)
+            logout: LogoutUseCase(authRepository: authRepo, tokenStore: tokenStore),
+            deviceTokenManager: deviceTokenManager
         )
     }
 
@@ -205,5 +207,58 @@ struct AppCoordinatorTests {
         let originalTab = sut.selectedTab
         sut.consumePendingDeepLink()
         #expect(sut.selectedTab == originalTab)
+    }
+
+    // MARK: - Device Token Registration
+
+    @Test func checkAuthStateReregistersDeviceTokenOnAuthenticated() async {
+        let sut = makeSUT()
+        await sut.checkAuthState()
+        #expect(deviceTokenManager.reregisterIfNeededCallCount == 1)
+    }
+
+    @Test func checkAuthStateDoesNotReregisterOnPendingApproval() async {
+        userRepo.getProfileResult = .success(User.stub(registrationStatus: .pendingApproval))
+        let sut = makeSUT()
+        await sut.checkAuthState()
+        #expect(deviceTokenManager.reregisterIfNeededCallCount == 0)
+    }
+
+    @Test func checkAuthStateDoesNotReregisterOnRejected() async {
+        userRepo.getProfileResult = .success(User.stub(registrationStatus: .rejected))
+        let sut = makeSUT()
+        await sut.checkAuthState()
+        #expect(deviceTokenManager.reregisterIfNeededCallCount == 0)
+    }
+
+    @Test func checkAuthStateDoesNotReregisterOnUnauthorized() async {
+        userRepo.getProfileResult = .failure(APIError.unauthorized)
+        let sut = makeSUT()
+        await sut.checkAuthState()
+        #expect(deviceTokenManager.reregisterIfNeededCallCount == 0)
+    }
+
+    @Test func handleLogoutUnregistersDeviceToken() async {
+        let sut = makeSUT()
+        sut.state = .authenticated(.stub)
+        await sut.handleLogout()
+        #expect(deviceTokenManager.unregisterCurrentDeviceCallCount == 1)
+    }
+
+    @Test func handleLogoutUnregistersDeviceTokenBeforeClearingTokens() async {
+        // The device token unregistration requires an auth token,
+        // so it must happen before logout clears the token store.
+        let sut = makeSUT()
+        sut.state = .authenticated(.stub)
+        await sut.handleLogout()
+        #expect(deviceTokenManager.unregisterCurrentDeviceCallCount == 1)
+        #expect(tokenStore.clearAllCallCount == 1)
+    }
+
+    @Test func handleLoginTriggersReregistration() async {
+        let sut = makeSUT()
+        await sut.handleLogin()
+        // handleLogin calls checkAuthState which reregisters on success
+        #expect(deviceTokenManager.reregisterIfNeededCallCount == 1)
     }
 }

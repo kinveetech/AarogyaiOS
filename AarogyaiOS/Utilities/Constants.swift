@@ -25,6 +25,7 @@ enum Constants {
         static let accessTokenKey = "access_token"
         static let refreshTokenKey = "refresh_token"
         static let idTokenKey = "id_token"
+        static let deviceTokenKey = "device_push_token"
     }
 
     enum Cache {
