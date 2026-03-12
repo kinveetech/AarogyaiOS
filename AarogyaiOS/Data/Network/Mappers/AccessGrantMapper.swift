@@ -8,6 +8,7 @@ enum AccessGrantMapper {
             grantedToUserId: dto.grantedToUserId,
             grantedToUserName: dto.grantedToUserName,
             grantedByUserId: dto.grantedByUserId,
+            grantedByUserName: dto.grantedByUserName,
             grantReason: dto.grantReason,
             scope: AccessScope(
                 allReports: dto.allReports,

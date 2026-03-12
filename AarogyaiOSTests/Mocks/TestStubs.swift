@@ -66,6 +66,7 @@ extension AccessGrant {
         grantedToUserId: "doctor-1",
         grantedToUserName: "Dr. Smith",
         grantedByUserId: "user-1",
+        grantedByUserName: "Test User",
         grantReason: "Follow-up",
         scope: AccessScope(allReports: true, reportIds: []),
         status: .active,
@@ -73,6 +74,38 @@ extension AccessGrant {
         expiresAt: nil,
         revokedAt: nil,
         createdAt: .now
+    )
+
+    static let receivedStub = AccessGrant(
+        id: "grant-2",
+        patientId: "patient-1",
+        grantedToUserId: "doctor-1",
+        grantedToUserName: "Dr. Smith",
+        grantedByUserId: "patient-1",
+        grantedByUserName: "Jane Patient",
+        grantReason: "Consultation",
+        scope: AccessScope(allReports: false, reportIds: ["report-1"]),
+        status: .active,
+        startsAt: .now,
+        expiresAt: Date.now.addingTimeInterval(86400 * 7),
+        revokedAt: nil,
+        createdAt: .now
+    )
+
+    static let expiredStub = AccessGrant(
+        id: "grant-3",
+        patientId: "patient-2",
+        grantedToUserId: "doctor-1",
+        grantedToUserName: "Dr. Smith",
+        grantedByUserId: "patient-2",
+        grantedByUserName: "Bob Patient",
+        grantReason: "Second opinion",
+        scope: AccessScope(allReports: true, reportIds: []),
+        status: .expired,
+        startsAt: Date.now.addingTimeInterval(-86400 * 14),
+        expiresAt: Date.now.addingTimeInterval(-86400 * 7),
+        revokedAt: nil,
+        createdAt: Date.now.addingTimeInterval(-86400 * 14)
     )
 }
 

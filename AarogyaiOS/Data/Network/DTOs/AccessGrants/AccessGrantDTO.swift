@@ -6,6 +6,7 @@ struct AccessGrantResponse: Decodable, Sendable {
     let grantedToUserId: String
     let grantedToUserName: String?
     let grantedByUserId: String
+    let grantedByUserName: String?
     let grantReason: String?
     let allReports: Bool
     let reportIds: [String]?

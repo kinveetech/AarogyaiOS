@@ -6,6 +6,7 @@ struct AccessGrant: Identifiable, Sendable {
     var grantedToUserId: String
     var grantedToUserName: String?
     var grantedByUserId: String
+    var grantedByUserName: String?
     var grantReason: String?
     var scope: AccessScope
     var status: AccessGrantStatus

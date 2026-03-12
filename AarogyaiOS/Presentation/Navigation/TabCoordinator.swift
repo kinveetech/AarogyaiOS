@@ -10,6 +10,7 @@ enum AppTab: String, CaseIterable, Sendable {
 struct TabCoordinator: View {
     let container: DependencyContainer
     @Binding var selectedTab: AppTab
+    let userRole: UserRole
     let onSignOut: () async -> Void
 
     @State private var reportsListViewModel: ReportsListViewModel?
@@ -41,7 +42,8 @@ struct TabCoordinator: View {
                     AccessGrantsView(viewModel: AccessGrantsViewModel(
                         fetchGrantsUseCase: container.fetchAccessGrantsUseCase,
                         createGrantUseCase: container.createAccessGrantUseCase,
-                        revokeGrantUseCase: container.revokeAccessGrantUseCase
+                        revokeGrantUseCase: container.revokeAccessGrantUseCase,
+                        userRole: userRole
                     ))
                 }
             }
