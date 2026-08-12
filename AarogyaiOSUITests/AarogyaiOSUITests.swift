@@ -23,8 +23,10 @@ final class AarogyaiOSUITests: XCTestCase {
         let title = app.staticTexts["Aarogya"]
         XCTAssertTrue(title.waitForExistence(timeout: 15), "Aarogya title should appear")
 
-        let subtitle = app.staticTexts["Your health records, secured"]
-        XCTAssertTrue(subtitle.exists, "Subtitle should appear")
+        let subtitle = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] 'Your Health, Our Priority'")
+        ).firstMatch
+        XCTAssertTrue(subtitle.waitForExistence(timeout: 5), "Subtitle should appear")
     }
 
     func testLoginScreenShowsPhoneField() throws {
@@ -51,8 +53,7 @@ final class AarogyaiOSUITests: XCTestCase {
 
         let phoneField = app.textFields["Phone number"]
         XCTAssertTrue(phoneField.waitForExistence(timeout: 15))
-        phoneField.tap()
-        phoneField.typeText("9876543210")
+        tapAndType(phoneField, text: "9876543210")
 
         let sendOTP = app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'Send OTP'")
@@ -75,8 +76,7 @@ final class AarogyaiOSUITests: XCTestCase {
 
         let phoneField = app.textFields["Phone number"]
         XCTAssertTrue(phoneField.waitForExistence(timeout: 15))
-        phoneField.tap()
-        phoneField.typeText("9876543210")
+        tapAndType(phoneField, text: "9876543210")
 
         app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'Send OTP'")
@@ -85,8 +85,7 @@ final class AarogyaiOSUITests: XCTestCase {
         // Wait for OTP field
         let otpField = app.textFields["000000"]
         XCTAssertTrue(otpField.waitForExistence(timeout: 10), "OTP field should appear")
-        otpField.tap()
-        otpField.typeText("123456")
+        tapAndType(otpField, text: "123456")
 
         let verify = app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'Verify'")
@@ -176,8 +175,13 @@ final class AarogyaiOSUITests: XCTestCase {
         XCTAssertTrue(accessTab.waitForExistence(timeout: 10))
         accessTab.tap()
 
-        let receivedSection = app.staticTexts["Granted to You"]
-        XCTAssertTrue(receivedSection.waitForExistence(timeout: 10), "Granted to You section should appear")
+        // The stubbed user is a patient: only the "Granted by You" list is
+        // shown. The received-grants section is doctor-only (segmented picker).
+        let grantedSection = app.staticTexts["Granted by You"]
+        XCTAssertTrue(grantedSection.waitForExistence(timeout: 10), "Granted by You section should appear")
+
+        let receivedSegment = app.segmentedControls.buttons["Received"]
+        XCTAssertFalse(receivedSegment.exists, "Received segment should not appear for patients")
     }
 
     func testAccessGrantsShowsStatusBadges() throws {
@@ -452,11 +456,11 @@ final class AarogyaiOSUITests: XCTestCase {
         deleteAccount.tap()
 
         // Alert should appear
-        let alert = app.alerts["Delete Account"]
+        let alert = app.alerts["Delete Account?"]
         XCTAssertTrue(alert.waitForExistence(timeout: 5), "Delete Account confirmation alert should appear")
 
         let alertMessage = alert.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS 'irreversible'")
+            NSPredicate(format: "label CONTAINS 'cannot be undone'")
         ).firstMatch
         XCTAssertTrue(alertMessage.exists, "Warning message should appear in alert")
 
@@ -599,6 +603,17 @@ final class AarogyaiOSUITests: XCTestCase {
 
     // MARK: - Helper Methods
 
+    /// Taps a text field and types into it, retrying the tap if the keyboard
+    /// has not taken focus yet (focus can lag the tap on slower simulators).
+    private func tapAndType(_ field: XCUIElement, text: String) {
+        field.tap()
+        if !app.keyboards.firstMatch.waitForExistence(timeout: 3) {
+            field.tap()
+            _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
+        }
+        field.typeText(text)
+    }
+
     private func launchAndLogin() {
         app.launch()
 
@@ -612,8 +627,7 @@ final class AarogyaiOSUITests: XCTestCase {
         // If still on login, perform OTP flow
         let phoneField = app.textFields["Phone number"]
         guard phoneField.waitForExistence(timeout: 10) else { return }
-        phoneField.tap()
-        phoneField.typeText("9876543210")
+        tapAndType(phoneField, text: "9876543210")
 
         app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'Send OTP'")
@@ -621,8 +635,7 @@ final class AarogyaiOSUITests: XCTestCase {
 
         let otpField = app.textFields["000000"]
         guard otpField.waitForExistence(timeout: 10) else { return }
-        otpField.tap()
-        otpField.typeText("123456")
+        tapAndType(otpField, text: "123456")
 
         app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'Verify'")
