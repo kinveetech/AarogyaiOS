@@ -5,7 +5,7 @@
 | Requirement | Value |
 |-------------|-------|
 | **Minimum iOS** | 26.0 |
-| **Language** | Swift 6.2 (strict concurrency) |
+| **Language** | Swift 6.3 (strict concurrency) |
 | **UI Framework** | SwiftUI with Liquid Glass |
 | **IDE** | Xcode 26+ |
 | **Dependency Manager** | Swift Package Manager (built-in) |
@@ -16,7 +16,7 @@
 - **Liquid Glass** — Apple's new design system with `glassEffect()`, `GlassEffectContainer`, morphing transitions
 - **Floating Tab Bar** — Native Liquid Glass tab bar with `tabBarMinimizeBehavior`, `TabSection`, `sidebarAdaptable`
 - **Glass Toolbars** — System automatically applies Liquid Glass to navigation bars and toolbars
-- **Swift 6.2** — Approachable concurrency with `@concurrent`, default main actor isolation
+- **Swift 6.3** — Approachable concurrency with `@concurrent`, default main actor isolation
 - `@Observable` macro — simpler, more performant state management (iOS 17+)
 - `SwiftData` — native persistence, mature and stable by iOS 26
 - `NavigationStack` with typed path — modern navigation
@@ -70,8 +70,8 @@ Push notifications use a mock `PushNotificationService` protocol. The real Fireb
 
 | Technology | Purpose |
 |------------|---------|
-| **Swift 6.2 Concurrency** | `async/await`, `Task`, `AsyncSequence`, `@concurrent` |
-| **@MainActor** | Main thread UI updates in ViewModels (default isolation in Swift 6.2) |
+| **Swift 6.3 Concurrency** | `async/await`, `Task`, `AsyncSequence`, `@concurrent` |
+| **@MainActor** | Main thread UI updates in ViewModels (default isolation in Swift 6.3) |
 | **Sendable** | Thread-safe data types |
 
 ### Developer Tools
@@ -94,7 +94,7 @@ Minimal dependencies — prefer Apple frameworks. Only add packages when they pr
 |---------|---------|---------|---------------|
 | ~~[Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk)~~ | ~> 11.0 | FCM push notifications + Crashlytics | **Deferred** — mock service used until Firebase is set up |
 | [SwiftLint](https://github.com/realm/SwiftLint) | ~> 0.57 | Code linting | Consistent code style across team |
-| [Nuke](https://github.com/kean/Nuke) | ~> 12.0 | Image loading + caching | Efficient async image pipeline for report thumbnails |
+| [Nuke](https://github.com/kean/Nuke) | ~> 13.1 | Image loading + caching | Efficient async image pipeline for report thumbnails |
 
 ### Considered but Rejected
 

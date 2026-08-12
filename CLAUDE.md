@@ -4,7 +4,7 @@
 
 AarogyaiOS is the native iOS client for the Aarogya healthcare platform. It provides patients, doctors, and lab technicians secure access to medical records, report management, access grants, emergency contacts, and DPDPA-compliant consent management.
 
-**Stack**: Swift 6.2, SwiftUI, iOS 26+, Liquid Glass, MVVM + Clean Architecture
+**Stack**: Swift 6.3, SwiftUI, iOS 26+, Liquid Glass, MVVM + Clean Architecture
 
 ---
 
@@ -14,7 +14,7 @@ AarogyaiOS is the native iOS client for the Aarogya healthcare platform. It prov
 - **UI**: SwiftUI with Liquid Glass — no UIKit
 - **Design**: Liquid Glass for navigation layer (tab bar, toolbars, floating controls); Serene Bloom gradient as content background
 - **State**: `@Observable` macro, no Combine
-- **Concurrency**: Swift 6.2 strict concurrency — default `@MainActor` isolation, `@concurrent` for background work
+- **Concurrency**: Swift 6.3 strict concurrency — default `@MainActor` isolation, `@concurrent` for background work
 - **Persistence**: SwiftData for offline caching
 - **Networking**: URLSession with async/await, Codable DTOs
 - **Auth**: AWS Cognito PKCE via `ASWebAuthenticationSession`, Keychain token storage (native API)
@@ -69,7 +69,7 @@ xcodegen generate
 ### Code Style
 - **Naming**: PascalCase for types, camelCase for properties/functions
 - **Views**: `*View.swift` suffix (e.g., `ReportsListView.swift`)
-- **ViewModels**: `*ViewModel.swift` suffix, `@Observable` classes (implicitly `@MainActor` in Swift 6.2)
+- **ViewModels**: `*ViewModel.swift` suffix, `@Observable` classes (implicitly `@MainActor` in Swift 6.3)
 - **DTOs**: `*Request.swift` / `*Response.swift` suffix, `Codable` structs
 - **Protocols**: Noun or adjective, no `Protocol` suffix (e.g., `ReportRepository`)
 - **Tests**: `*Tests.swift` suffix

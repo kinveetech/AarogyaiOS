@@ -262,7 +262,7 @@ Defined in the Xcode project's Package Dependencies section:
 |---------|-----|---------|
 | ~~[Firebase iOS SDK](https://github.com/firebase/firebase-ios-sdk)~~ | Push notifications (FCM) + Crashlytics | **Deferred** — mock service for now |
 | [SwiftLint](https://github.com/realm/SwiftLint) | Code linting (build plugin) | ~> 0.57 |
-| [Nuke](https://github.com/kean/Nuke) | Async image loading + caching | ~> 12.0 |
+| [Nuke](https://github.com/kean/Nuke) | Async image loading + caching | ~> 13.1 |
 
 **Intentionally excluded**:
 - No KeychainAccess — native Keychain Services API is sufficient at iOS 26

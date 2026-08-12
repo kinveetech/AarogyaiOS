@@ -4,7 +4,7 @@
 
 AarogyaiOS is the native iOS client for the Aarogya healthcare platform by Kinvee Technologies. It provides patients, doctors, and lab technicians with secure access to medical records, report management, access grants, emergency contacts, and DPDPA-compliant consent management.
 
-The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** design language and **Swift 6.2** concurrency model. It communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0) using PKCE-based authentication through AWS Cognito.
+The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** design language and **Swift 6.3** concurrency model. It communicates directly with the AarogyaBackend REST API (ASP.NET Core 9.0) using PKCE-based authentication through AWS Cognito.
 
 ---
 
@@ -74,9 +74,9 @@ The app targets **iOS 26+** exclusively, embracing Apple's **Liquid Glass** desi
 
 **Rationale**: iOS 26 provides mature SwiftUI APIs: `NavigationStack`, `@Observable`, Liquid Glass `glassEffect()`, `GlassEffectContainer`, `tabBarMinimizeBehavior`, `TabSection`, `.searchable`, `.sheet`, and comprehensive layout primitives. No UIKit bridging needed.
 
-### 3. Swift 6.2 Strict Concurrency
+### 3. Swift 6.3 Strict Concurrency
 
-**Rationale**: Swift 6.2's approachable concurrency simplifies safe concurrent code. Default main actor isolation means ViewModels and views are implicitly `@MainActor`. The `@concurrent` attribute is used when explicit background execution is needed (network calls, file I/O). No Combine, no GCD, no completion handlers.
+**Rationale**: Swift 6.3's approachable concurrency simplifies safe concurrent code. Default main actor isolation means ViewModels and views are implicitly `@MainActor`. The `@concurrent` attribute is used when explicit background execution is needed (network calls, file I/O). No Combine, no GCD, no completion handlers.
 
 ### 4. @Observable over Combine
 
@@ -189,7 +189,7 @@ The `AuthInterceptor` intercepts these globally and routes through the coordinat
 
 ## Concurrency Model
 
-- All async work uses Swift 6.2 Concurrency (`async/await`, `Task`, `AsyncSequence`)
+- All async work uses Swift 6.3 Concurrency (`async/await`, `Task`, `AsyncSequence`)
 - Default main actor isolation — ViewModels and views are implicitly `@MainActor`
 - `@concurrent` functions for explicit background work (network, file I/O)
 - File uploads use `URLSession` delegate for progress reporting

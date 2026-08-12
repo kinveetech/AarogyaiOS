@@ -98,12 +98,7 @@ struct UploadReportUseCaseTests {
             fileData: Data("test".utf8),
             fileName: "report.pdf",
             contentType: "application/pdf",
-            reportType: .bloodTest,
-            title: "My Report",
-            reportDate: nil,
-            doctorName: nil,
-            labName: nil,
-            notes: nil
+            reportType: .bloodTest
         )
         let report = try await sut.execute(input: input) { _ in }
         #expect(reportRepo.getUploadURLCallCount == 1)
